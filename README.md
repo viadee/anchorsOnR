@@ -13,7 +13,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-The R package requires a Java SE Runtime Environment (JRE) with (Java version 8)[https://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html] or higher.
+The R package requires a Java SE Runtime Environment (JRE) with [Java version] 8](https://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html) or higher.
 
 If you want to fiddle around with the anchorsOnR source code, make sure to have the `devtools` package installed.
 
@@ -37,19 +37,16 @@ Following dependencies are required and loaded in the package:
 * ggplot2
 
 ### Using the Algorithm
-The anchors API resembles the API of the R package (lime)[https://github.com/thomasp85/lime].
+The anchors API resembles the API of the R package [lime](https://github.com/thomasp85/lime).
 The best way to illustrate the process of model-agnostic explanation in *anchors* is by example. Assume we aim to understand predictions made on the iris dataset. Towards that goal, we first train an *mlr* learner:
 
 ```{r}
 library(mlr)
 library(anchors)
 
-# splitting the iris dataset into test and train data
-smp_size <- floor(0.95 * nrow (iris))
-set.seed(123)
-train_ind <- sample(seq_len(nrow(iris)), size = smp_size)
-train <- iris[train_ind, ]
-test <- iris[-train_ind, ]
+# we are training a model on the iris data set
+data(iris)
+train = iris
 
 # our goal is to predict the species
 task = makeClassifTask(data = train, target = "Species", id = "iris")
@@ -69,7 +66,7 @@ Finally, we create an anchors explainer and explain the model with it:
 ```{r}
 explainer = anchors(train, model, perturbator)
 
-explanations = explain(test[1,], explainer)
+explanations = explain(train[1,], explainer)
 ```
 The explain function starts and shuts down a background JVM in which the anchor server is tasked with determining the anchors in your dataset.
 After the explanations are derived from the model, one can visualize them in text form or as a heatmap-like graph.
@@ -98,7 +95,7 @@ plotExplanations(explanations)
 
 ## Authors
 
-* **Thorben Hellweg** (thllwg)[https://github.com/thllwg]
+* **Thorben Hellweg** [thllwg](https://github.com/thllwg)
 
 ## License
 
