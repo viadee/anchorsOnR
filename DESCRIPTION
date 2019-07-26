@@ -1,0 +1,24 @@
+Package: anchors
+Type: Package
+Title: AnchorsOnR: High-Precision Model-Agnostic Explanations in R
+Version: 0.1.0
+Authors@R: as.person(c(
+  "Thorben Hellweg <thorben.hellweg@viadee.de> [aut, cre]"))
+Maintainer: Thorben Hellweg <thorben.hellweg@viadee.de>
+Description: This package provides an interface to the java-based implementation of the anchors explanation algorithm for machine learning models. It enables High-Precision Model-Agnostic Explanations in your favourite statistical computing language. 
+License: BSD 3
+Encoding: UTF-8
+LazyData: true
+Depends: 
+    checkmate,
+    rjson,
+    jsonlite,
+    BBmisc,
+    uuid,
+    arules,
+    magrittr
+VignetteBuilder: knitr
+SystemRequirements: Java Runtime Environment (JRE)
+Suggests: 
+    testthat
+RoxygenNote: 6.1.1
