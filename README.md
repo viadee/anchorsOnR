@@ -13,7 +13,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-The R package requires a Java SE Runtime Environment (JRE) with (Java version 8)[https://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html] or higher.
+The R package requires a Java SE Runtime Environment (JRE) with [Java version 8](https://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html) or higher.
 
 If you want to fiddle around with the anchorsOnR source code, make sure to have the `devtools` R-package installed.
 
@@ -37,7 +37,7 @@ The following dependencies are required to use this package (unmodified, distrib
 * magrittr (MIT)
 
 ### Using the Algorithm
-The anchors API resembles the API of the R package (lime)[https://github.com/thomasp85/lime].
+The anchors API resembles the API of the R package [lime](https://github.com/thomasp85/lime).
 The best way to illustrate the process of model-agnostic explanation in *anchors* is by example. Assume we aim to understand predictions made on the iris dataset. Towards that goal, we first train an *mlr* learner as a black box model to explain:
 
 ```{r}
@@ -76,25 +76,22 @@ The explain function starts and shuts down a background JVM in which the anchor 
 After the explanations are derived from the model, one can visualize them in rule form or as a heatmap-like graph.
 ```{r}
 printExplanations(explainer, explanations)
-#> ====Explained Instance  109 ====
-#> Sepal.Length = 6.7
-#> Sepal.Width = 2.5
-#> Petal.Length = 5.8
-#> Petal.Width = 1.8
-#> WITH LABEL Species = '3'
+#> ====Explained Instance  52 ====
+#> Sepal.Length = 6.4
+#> Sepal.Width = 3.2
+#> Petal.Length = 4.5
+#> Petal.Width = 1.5
+#> WITH LABEL Species = 'versicolor'
 #> ====Result====
-#> IF Sepal.Length IN INLC RANGE [6.2,7.9] (ADDED PRECISION: 0.985074626865672) AND
-#> Sepal.Width IN INLC RANGE [2.9,3.2) (ADDED PRECISION: 0) AND
-#> Petal.Length IN INLC RANGE [4.8,6.9] (ADDED PRECISION: 0) AND
-#> Petal.Width IN INLC RANGE [1.5,2.5] (ADDED PRECISION: 0.0149253731343284)
-#> THEN PREDICT '3'
-#> WITH PRECISION 1
+#> IF Petal.Width IN INLC RANGE [0.867,1.6) (ADDED PRECISION: 0.800995024875622, ADDED COVERAGE: 0.588) AND
+#> THEN PREDICT '2'
+#> WITH PRECISION 0.800995024875622 AND COVERAGE 0.588
 ```
 Here it is clear, why the method is called Anchors. The result is a rule, that describes the decision making of a machine learning model anchored around a particular instance of interest, but generalized as far as possible. Looking around from our chosen case it becomes clear, that in this machine learning model similar cases are correctly classified as class '3' nearly exclusively using the Sepal.Length measurement. We need the Petal.Width however to achieve a perfect prediction for all cases covered. Given the rule it is also easy to calculate the number of cases covered and hence provide a relative coverage of the rule (which is a major improvement compared to LIME).
 
 ## Authors
 
-* **Thorben Hellweg** (thllwg)[https://github.com/thllwg]
+* **Thorben Hellweg** [thllwg](https://github.com/thllwg)
 * **Tobias Goerke**
 * **Ronja Köhling**
 

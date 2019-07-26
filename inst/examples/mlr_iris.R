@@ -15,6 +15,9 @@ lrn = makeLearner("classif.randomForest")
 # train the learner on the training set
 model = mlr::train(learner = lrn, task = task)
 
+# Setting up a perturbation function. As we want explain a tabular instance (an observation in our dataset iris), we stick to a featureless tabular perturbation function
+perturbator = makePerturbFun("tabular.featureless")
+
 # Explain model with anchors
 explainer = anchors(train, model, perturbator)
 
