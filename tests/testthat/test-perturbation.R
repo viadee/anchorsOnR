@@ -1,8 +1,9 @@
 context("perturbation")
 
-test_that("featureless tabular perturbation can be applied", {
+test_that("featureless tabular perturbation can be applied",{
   perturb.fun = makePerturbFun("tabular.featureless")
-  expect_class(perturb.fun, c("tabular.featureless","RPerturbFunTabular", "RPerturbFun", "perturbFun"))
+  expect_class(perturb.fun, c("tabular.featuresless", "RPerturbFunTabular", "RPerturbFun", "perturbFun"))
+
   data(iris)
   instance = iris[5,]
   perturbInstance = perturbate(perturb.fun, iris, arules::discretizeDF(iris), instance, c(5))

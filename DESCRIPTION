@@ -22,3 +22,5 @@ SystemRequirements: Java Runtime Environment (JRE)
 Suggests: 
     testthat
 RoxygenNote: 6.1.1
+Imports: 
+    foreach

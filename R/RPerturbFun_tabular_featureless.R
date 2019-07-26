@@ -26,9 +26,13 @@ perturbate.tabular.featureless <- function(perturbFun, dataset, datasetDisc, ins
       }
     }))
 
-    group = which(datasetDisc[,i] == lvls[lvl])
+    #group = which(datasetDisc[,i] == lvls[lvl])
 
-    instance[,i] = dataset[sample(group, 1), i]
+    if (as.logical(rbinom(1,size=1,prob=2/3))){
+      instance[,i] = dataset[sample(rownames(datasetDisc), 1), i]
+    }
   }
+
   return(instance)
 }
+

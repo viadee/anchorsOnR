@@ -138,19 +138,47 @@ predict_model.xgb.Booster <- function(x, newdata, type, ...) {
     stop('The xgboost package is required for predicting xgboost models')
   }
   if (is.data.frame(newdata)) {
-    newdata <- xgboost::xgb.DMatrix(as.matrix(newdata))
+    xnewdata <- xgboost::xgb.DMatrix(as.matrix(newdata[, x$feature_names]))
   }
-  p <- data.frame(predict(x, newdata = newdata, reshape = TRUE, ...), stringsAsFactors = FALSE)
-  if (type == 'raw') {
-    names(p) <- 'Response'
-  } else if (type == 'prob') {
-    if (ncol(p) == 1) { # Binary classification
-      names(p) = '1'
-      p[['0']] <- 1 - p[['1']]
-    } else {
-      names(p) <- as.character(seq_along(p))
-    }
+  p <- data.frame(predict(x, newdata = xnewdata, reshape = TRUE, ...), stringsAsFactors = FALSE)
+
+  if (ncol(p) == 1){ # Binary Classification
+    names(p) = '1'
+    p[['0']] <- 1 - p[['1']]
+  } else {
+    names(p) <- as.character(seq_along(p))
   }
+
+  # Use the predicted label with the highest probability
+  response = apply(p,1,function(x) colnames(p)[which.max(x)])
+  truth = newdata[,setdiff(colnames(newdata), x$feature_names)] # FIXME: Plus 1 shift required?
+
+  data = namedList(c("id", "truth", "response", "prob"))
+  data$id = rownames(instance)
+
+  data$truth = truth
+  data$response = response
+  data = as.data.frame(filterNull(data))
+
+  p = makeS3Obj(c("Prediction"),
+            data = data,
+            predict.type = "response",
+            threshold = (1/ncol(p)),
+            task.desc = NULL,
+            error = NA_character_,
+            dump = NULL
+  )
+
+  # if (type == 'raw') {
+  #   names(p) <- 'Response'
+  # } else if (type == 'prob') {
+  #   if (ncol(p) == 1) { # Binary classification
+  #     names(p) = '1'
+  #     p[['0']] <- 1 - p[['1']]
+  #   } else {
+  #     names(p) <- as.character(seq_along(p))
+  #   }
+  # }
   p
 }
 #' @export
@@ -183,10 +211,32 @@ predict_model.H2OModel <- function(x, newdata, type, ...){
   if (!requireNamespace('h2o', quietly = TRUE)) {
     stop('The h2o package is required for predicting h2o models')
   }
+  h2o.no_progress()
   pred <- h2o::h2o.predict(x, h2o::as.h2o(newdata))
+  h2o.show_progress()
   h2o_model_class <- class(x)[[1]]
   if (h2o_model_class %in% c("H2OBinomialModel", "H2OMultinomialModel")) {
-    return(as.data.frame(pred[,-1]))
+    data = namedList(c("id", "truth", "response", "prob"))
+    data$id = rownames(newdata)
+
+    # Use the predicted label with the highest probability
+    response = as.vector(pred[,1])
+    truth = newdata[,explainer$model@parameters$y]
+
+    data$truth = truth
+    data$response = response
+    levels(data$response) = as.character(levels(data$truth))
+    data = as.data.frame(filterNull(data))
+
+    p = makeS3Obj(c("Prediction"),
+                  data = data,
+                  predict.type = "response",
+                  threshold = (1/ncol(pred[,-1])),
+                  task.desc = NULL,
+                  error = NA_character_,
+                  dump = NULL
+    )
+    return(p)
   } else if (h2o_model_class == "H2ORegressionModel") {
     ret <- as.data.frame(pred[,1])
     names(ret) <- "Response"

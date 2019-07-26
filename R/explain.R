@@ -5,12 +5,12 @@
 #' function takes new observation along with the explainer and returns a
 #' data.frame with prediction explanations, one observation per row. The
 #' returned explanations can then be visualised in a number of ways, e.g. with
-#' [plotExplanations()].
+#' [plot_features()].
 #'
 #' @param x New observations to explain, of the same format as used when
 #' creating the explainer
 #'
-#' @param explainer An `data_frame_explainer` object to use for explaining the observations
+#' @param explainer An `explainer` object to use for explaining the observations
 #'
 #' @param labels The specific labels (classes) to explain in case the model is
 #' a classifier. For classifiers either this or `n_labels` must be given.
