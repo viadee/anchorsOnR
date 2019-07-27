@@ -1,9 +1,9 @@
 
 getFeatureWeight <- function(candidates, feature, instance, dataset, datasetDisc){
   if (candidates$addedFeature == feature){
-    addedPrec = candidates$addedPrecision
-    names(addedPrec) = feature+1
-    return(addedPrec)
+    added = candidates$addedPrecision
+    names(added) = feature+1
+    return(added)
   } else if ("parentCandidate" %in% names(candidates)){
     return (getFeatureWeight(candidates = candidates$parentCandidate, feature = feature, instance = instance, dataset = dataset, datasetDisc = datasetDisc))
   }
@@ -11,7 +11,7 @@ getFeatureWeight <- function(candidates, feature, instance, dataset, datasetDisc
 
 getAddedCoverage <- function(candidates, feature, instance, dataset, datasetDisc){
   if (candidates$addedFeature == feature){
-    added = candidates$addedCoverage
+    added = if(is.null(candidates$addedCoverage)) "?" else candidates$addedCoverage
     names(added) = feature+1
     return(added)
   } else if ("parentCandidate" %in% names(candidates)){

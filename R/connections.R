@@ -16,7 +16,7 @@ shutdown <- function(control = NULL){
   message = rjson::toJSON(list("quit" = 1))
   writeLines(message, con)
   close(con)
-  cat("Anchors has been terminated. Use 'init()' to start a new Anchors server.")
+  cat("Anchors has been successfully terminated.")
   control <- NULL
   return(control)
 }

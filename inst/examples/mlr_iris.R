@@ -27,8 +27,6 @@ explanations = explain(train[1:2,], explainer)
 
 printExplanations(explainer, explanations)
 
-plotExplanations(explanations)
-
 
 
 

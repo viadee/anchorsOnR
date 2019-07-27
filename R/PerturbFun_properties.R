@@ -1,3 +1,4 @@
+#' @title Get Properties of Pertubation Function
 #' @rdname PerturbFunProperties
 #' @export
 getPerturbFunProperties = function(perturbFun) {

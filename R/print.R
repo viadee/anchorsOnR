@@ -28,7 +28,11 @@ printExplanations <- function(explainer, explanations){
     cat("====Result====", sep = "\n")
     for(j in seq_along(rownames(case))){
       if (j == 1){
-        cat(paste("IF", case[j, "feature_desc"], "(ADDED PRECISION:", paste0(case[j, "feature_weight"],", ADDED COVERAGE: ",case[j, "added_coverage"],")"), "AND"), sep = "\n")
+        if (length(seq_along(rownames(case))) == j){
+          cat(paste("IF", case[j, "feature_desc"], "(ADDED PRECISION:", paste0(case[j, "feature_weight"],", ADDED COVERAGE: ",case[j, "added_coverage"],")")), sep = "\n")
+        } else {
+          cat(paste("IF", case[j, "feature_desc"], "(ADDED PRECISION:", paste0(case[j, "feature_weight"],", ADDED COVERAGE: ",case[j, "added_coverage"],")"), "AND"), sep = "\n")
+        }
       } else if (j > 1 && j < nrow(case)){
         cat(paste(case[j, "feature_desc"], "(ADDED PRECISION:", paste0(case[j, "feature_weight"],", ADDED COVERAGE: ",case[j, "added_coverage"],")"),  "AND"), sep = "\n")
       } else {
