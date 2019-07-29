@@ -39,7 +39,11 @@ printExplanations <- function(explainer, explanations){
         cat(paste(case[j, "feature_desc"], "(ADDED PRECISION:", paste0(case[j, "feature_weight"],", ADDED COVERAGE: ",case[j, "added_coverage"],")")),  sep = "\n");
       }
     }
-    cat(paste("THEN PREDICT", paste0("'",unique(case[,"prediction"]),"'")), sep = "\n")
+    predictOutput=paste("THEN PREDICT", paste0("'",unique(case[,"prediction"]),"'"))
+    if(!is.null(levels(explainer$x[,explainer$target]))){
+      predictOutput=paste0(predictOutput, " ('", levels(explainer$x[,explainer$target])[unique(case[,"prediction"])] ,"')")
+    }
+    cat(predictOutput, sep = "\n")
     cat(paste("WITH PRECISION", unique(case[,"precision"]), "AND COVERAGE", unique(case[,"coverage"])), sep = "\n")
     cat("\n")
 
