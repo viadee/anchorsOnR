@@ -44,12 +44,8 @@ The best way to illustrate the process of model-agnostic explanation in *anchors
 library(mlr)
 library(anchors)
 
-# splitting the iris dataset into test and train data
-smp_size <- floor(0.95 * nrow (iris))
-set.seed(123)
-train_ind <- sample(seq_len(nrow(iris)), size = smp_size)
-train <- iris[train_ind, ]
-test <- iris[-train_ind, ]
+data(iris)
+train = iris
 
 # our goal is to predict the species
 task = makeClassifTask(data = train, target = "Species", id = "iris")
@@ -58,7 +54,7 @@ task = makeClassifTask(data = train, target = "Species", id = "iris")
 lrn.rpart = makeLearner("classif.rpart")
 
 # train the learner on the training set
-model = mlr::train(learner = lrn.rpart, task = task)
+model = train(learner = lrn.rpart, task = task)
 ```
 In anchors, explanations are derived by feature value perturbation (i.e. systematically changing model feature values to see which changes are necessary to flip the model's prediction). 
 As we want explain a tabular instance (an observation in our dataset iris), we choose the default tabular perturbation function.
@@ -66,11 +62,11 @@ As we want explain a tabular instance (an observation in our dataset iris), we c
 ```{r}
 perturbator = makePerturbFun("tabular.featureless")
 ```
-Finally, we create an anchors explainer and apply it for interesting cases (here only the first case only, for the sake of simplicity):
+Finally, we create an anchors explainer and apply it to a case to be explained:
 ```{r}
 explainer = anchors(train, model, perturbator)
 
-explanations = explain(test[1,], explainer)
+explanations = explain(train[52,], explainer)
 ```
 The explain function starts and shuts down a background JVM in which the anchor server is tasked with determining the anchors in your dataset.
 After the explanations are derived from the model, one can visualize them in rule form or as a heatmap-like graph.
@@ -83,11 +79,11 @@ printExplanations(explainer, explanations)
 #> Petal.Width = 1.5
 #> WITH LABEL Species = 'versicolor'
 #> ====Result====
-#> IF Petal.Width IN INLC RANGE [0.867,1.6) (ADDED PRECISION: 0.800995024875622, ADDED COVERAGE: 0.588) AND
+#> IF Petal.Length IN INLC RANGE [2.63,4.9) (ADDED PRECISION: 0.810945273631841, ADDED COVERAGE: -0.411)
 #> THEN PREDICT '2'
-#> WITH PRECISION 0.800995024875622 AND COVERAGE 0.588
+#> WITH PRECISION 0.810945273631841 AND COVERAGE 0.589
 ```
-Here it is clear, why the method is called Anchors. The result is a rule, that describes the decision making of a machine learning model anchored around a particular instance of interest, but generalized as far as possible. Looking around from our chosen case it becomes clear, that in this machine learning model similar cases are correctly classified as class '3' nearly exclusively using the Sepal.Length measurement. We need the Petal.Width however to achieve a perfect prediction for all cases covered. Given the rule it is also easy to calculate the number of cases covered and hence provide a relative coverage of the rule (which is a major improvement compared to LIME).
+Here it is clear, why the method is called Anchors. The result is a rule, that describes the decision making of a machine learning model anchored around a particular instance of interest, but generalized as far as possible. Looking around from our chosen case it becomes clear, that in this machine learning model similar cases are correctly classified as class '2' nearly exclusively using the Petal.Length measurement. Given the rule it is also easy to calculate the number of cases covered and hence provide a relative coverage of the rule (which is a major improvement compared to LIME).
 
 ## Authors
 

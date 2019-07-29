@@ -2,6 +2,11 @@ makePerturbationTask <- function(df = NULL, instance = NULL){
 
 }
 
+#' @title makePerturbFun
+#' @name makePerturbFun
+#' @rdname makePerturbFun
+#'
+#' @export
 makePerturbFun <- function(cl, id = cl, ..., par.vals = list(), config = list()){
   checkmate::assertString(cl)
   checkmate::assertList(config, names = "named")

@@ -149,7 +149,6 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
       # route command based on status
       type = response$status
 
-
       if (type == "eval_request"){
         cat(".")
         anchors = unlist(response$anchors)
@@ -170,7 +169,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
         writeLines(instanceJSON, con)
 
       } else if (type == "coverage_request") {
-        cat("+")
+        cat(".")
         features = unlist(response$features)
 
         perturbationsDf = do.call(rbind, lapply(1:1000, function(x){
@@ -193,7 +192,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
             }
           }))
 
-          # Does not fix the bug, just the symptoms | FIXME!!
+          # related to issue #8 | FIXME!
           if (length(lvl)>1){
             lvl = lvl[1]
           }
@@ -220,7 +219,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
       cat(" \r"); cat("[Explained] Instance "); cat("\n");
       rules = response$anchorResult[[1]]
       featuresWeight = sapply(rules$canonicalFeatures, getFeatureWeight, candidates = rules, instance = instance, dataset = explainer$trainingsData, datasetDisc = explainer$discTrainingsData)
-      #addedCoverage = sapply(rules$canonicalFeatures, getAddedCoverage, candidates = rules, instance = instance, dataset = explainer$trainingsData, datasetDisc = explainer$discTrainingsData)
+      addedCoverage = sapply(rules$canonicalFeatures, getAddedCoverage, candidates = rules, instance = instance, dataset = explainer$trainingsData, datasetDisc = explainer$discTrainingsData)
       featuresText = sapply(rules$canonicalFeatures, getFeatureText, candidates = rules, instance = instance, dataset = explainer$trainingsData, datasetDisc = explainer$discTrainingsData)
 
 
@@ -233,7 +232,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
         explanations[ridx, "feature"] = colnames(instance)[as.numeric(j)]
         explanations[ridx, "feature_value"] = instance[,as.numeric(j)]
         explanations[ridx, "feature_weight"] = featuresWeight[[j]]
-        explanations[ridx, "added_coverage"] = rules$coverage #addedCoverage[[j]]
+        explanations[ridx, "added_coverage"] = addedCoverage[[j]]
         explanations[ridx,"feature_desc"] = featuresText[[j]]
         explanations[ridx, "data"] = collapse(unlist(instance))
         explanations[ridx, "prediction"] = prediction$data$response

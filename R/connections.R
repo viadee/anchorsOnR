@@ -16,7 +16,7 @@ shutdown <- function(control = NULL){
   message = rjson::toJSON(list("quit" = 1))
   writeLines(message, con)
   close(con)
-  cat("Anchors has been terminated. Use 'init()' to start a new Anchors server.")
+  cat("Anchors has been successfully terminated.")
   control <- NULL
   return(control)
 }
@@ -62,7 +62,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
 
       cat("Starting Anchors JVM and connecting: ")
       con = tryCatch({
-        con = socketConnection(host = ip, port = port, timeout = 5)
+        con = socketConnection(host = ip, port = port, timeout = 5L)
       }, error = function(cond){
         message(cond)
         return(NULL)
@@ -88,7 +88,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
 
 
 .anchors.pkg.path <- NULL
-.anchors.pkg.path <- system.file("inst/java", "RModuleExtension", package = "anchors")
+.anchors.pkg.path <- system.file("inst/java", "RModuleExtension.jar", package = "anchors")
 .anchors.jar.env <- new.env()    # Dummy variable used to shutdown Anchors when R exits
 
 .onLoad <- function(lib, pkg) {
@@ -281,7 +281,8 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
 # It will download a jar file if it needs to.
 .anchors.downloadJar <- function(overwrite = FALSE) {
   if(!is.logical(overwrite) || length(overwrite) != 1L || is.na(overwrite)) stop("`overwrite` must be TRUE or FALSE")
-  .anchors.pkg.path <- system.file("inst/java", "RModuleExtension.jar", package = "anchors")
+  #.anchors.pkg.path <- system.file("inst/java", "RModuleExtension.jar", package = "anchors")
+  .anchors.pkg.path <- system.file("java", "RModuleExtension.jar", package = "anchors")
   # PUBDEV-3534 hook to use arbitrary anchors.jar
   own_jar = Sys.getenv("ANCHORS_JAR_PATH")
   is_url = function(x) any(grepl("^(http|ftp)s?://", x), grepl("^(http|ftp)s://", x))
