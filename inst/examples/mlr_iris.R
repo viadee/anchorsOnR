@@ -1,3 +1,4 @@
+library("anchors")
 library(mlr)
 library(randomForest)
 
@@ -26,8 +27,6 @@ train = train[train[,"Species"]=="versicolor",]
 explanations = explain(train[1:2,], explainer)
 
 printExplanations(explainer, explanations)
-
-plotExplanations(explanations)
 
 
 

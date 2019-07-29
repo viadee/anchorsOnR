@@ -1,4 +1,5 @@
 library("h2o")
+library("anchors")
 
 data(iris)
 
@@ -17,5 +18,3 @@ explainer = anchors(iris, model, pert, target = 5)
 explanations = explain(iris[1:2,], explainer)
 
 printExplanations(explainer, explanations)
-
-plotExplanations(explanations)
