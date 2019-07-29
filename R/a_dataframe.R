@@ -56,7 +56,8 @@ anchors.data.frame <- function(x, model, perturbator = NULL, discX = NULL, targe
         bins <- quantile(x[[i]], seq(0, 1, length.out = n_bins + 1), na.rm = TRUE)
         bins <- bins[!duplicated(bins)]
         if (length(bins) < 3) {
-          warning(names(x)[i], ' does not contain enough variance to use quantile binning. Using standard binning instead.', call. = FALSE)
+          warning(names(x)[i], ' does not contain enough variance to use quantile binning.
+                  Using standard binning instead.', call. = FALSE)
           d_range <- range(x[[i]], na.rm = TRUE)
           bins <- seq(d_range[1], d_range[2], length.out = n_bins + 1)
         }
@@ -114,43 +115,52 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
   rules = list()
 
   explanations = data.frame(matrix(ncol = 12, nrow = 0))
-  colnames(explanations) = c("model_type", "case", "label", "label_prob", "feature", "feature_value",
-                             "feature_weight","added_coverage", "feature_desc", "data","prediction", "precision")
+  colnames(explanations) = c("model_type", "case", "label", "label_prob", "feature",
+                             "feature_value", "feature_weight", "added_coverage",
+                             "feature_desc", "data", "prediction", "precision")
 
   cat("Explaining ",nrow(x)," observations. This may take a while."); cat("\n");
   for (i in 1:nrow(x)){
     cat("[Explaining] Instance ", i, ": ")
     instance = x[i,]
     prediction = predict_model(explainer$model, instance, type = o_type)
-    instancePrediction = performance_model(prediction, measures = list(acc)) #TODO: FIXME
+    # FIXME - what is wrong here? I don't see a problem
+    instancePrediction = performance_model(prediction, measures = list(acc))
 
     # set meta data for IPC
     id = uuid::UUIDgenerate()
     count = 1
     status = "request"
 
-    instanceJSON = rjson::toJSON(list("id" = c(id), "count" = c(count), "status" = c(status), "precision" = c(0), "instance" = length(instance)-1))
+    requestParams = list("id" = c(id),
+      "count" = c(count),
+      "status" = c(status),
+      "precision" = c(0),
+      "instance" = length(instance) -1)
+
+    instanceJSON = as.character(jsonlite::toJSON(requestParams, auto_unbox = T))
     con = explainer$connection
     writeLines(instanceJSON, con)
 
     responseRaw = character(0)
     response = character(0)
 
-
+    # TODO is busy waiting the way to go here?
     while(length(responseRaw) == 0){
       # check for response
       responseRaw = readLines(con)
       if(identical(responseRaw, character(0))) next
 
       # get response
-      response = rjson::fromJSON(responseRaw)
-      #count = response$count + 1
+      response = jsonlite::fromJSON(responseRaw, simplifyMatrix = F, simplifyVector = T, flatten = T, simplifyDataFrame = F)
 
       # route command based on status
       type = response$status
 
       if (type == "eval_request"){
         cat(".")
+        #cat(as.character(response))
+
         anchors = unlist(response$anchors)
         samplesToEvaluate = response$samplesToEvaluate
         # Create pertubations for rule
@@ -165,7 +175,12 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
         matchingLabels = precision * samplesToEvaluate
 
         # Send precision to anchors
-        instanceJSON = rjson::toJSON(list("id" = c(id), "count" = c(count), "status" = c("eval_response"), "matchingLabels" = c(matchingLabels), "precision" = c(precision)))
+        responseList = list("id" = c(id),
+             "count" = c(count),
+             "status" = c("eval_response"),
+             "matchingLabels" = c(matchingLabels),
+             "precision" = c(precision))
+        instanceJSON = as.character(jsonlite::toJSON(responseList, auto_unbox = T))
         writeLines(instanceJSON, con)
 
       } else if (type == "coverage_request") {
@@ -206,7 +221,11 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
 
 
         # Send coverage to anchors
-        coverageJSON = rjson::toJSON(list("id" = c(id), "count" = c(count), "status" = c("coverage_response"), "coverage" = c(coverage)))
+        responseList = list("id" = c(id),
+                            "count" = c(count),
+                            "status" = c("coverage_response"),
+                            "coverage" = c(coverage))
+        coverageJSON = jsonlite::toJSON(responseList, auto_unbox = T)
         writeLines(coverageJSON, con)
 
       } else if (type == "response"){

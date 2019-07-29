@@ -40,5 +40,3 @@ explanations = explain(test[1,], explainer)
 
 printExplanations(explainer, explanations)
 
-plotExplanations(explanations)
-
