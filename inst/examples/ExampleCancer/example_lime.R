@@ -45,25 +45,3 @@ explainer <- lime(cervical[train_ind,], mod, bin_continuous = TRUE, quantile_bin
 explanation <- lime::explain(cervical[c(instanceInd), ], explainer, n_labels = 2, n_features = 12)
 
 lime_explanation <- plot_features(explanation, ncol = 1)
-
-#### Anchors on R ####
-
-
-# initialise anchors
-ctrl = initAnchors(ip = "localhost", port = 6666, startAnchors = TRUE)
-
-instance = pred$data[1,]
-instance = cervical[rownames(cervical) == rownames(instance),]
-
-# Setting up a perturbation function. As we want explain a tabular instance (an observation in our dataset iris), we stick to a featureless tabular perturbation function
-perturbator = makePerturbFun("tabular.featureless")
-ctrl = registerAnchorsComponent(ctrl, "perturbate", perturbate, perturbator)
-
-# explain instance
-ctrl = registerAnchorsComponent(ctrl, "predict", predict, mod)
-ctrl = registerAnchorsComponent(ctrl, "performance", performance, list(acc))
-rules = explain(ctrl, cervical, cervicalDisc, labelIdx = instanceInd, instanceIdx = as.integer(rownames(instance)))
-# print the result in human readible form
-printLocalExplanation(anchorResult = rules, instance = instance, dataset = cervical, datasetDisc = cervicalDisc, labelIdx = instanceInd)
-
-shutdown(ctrl)
