@@ -88,7 +88,8 @@ Here it is clear, why the method is called Anchors. The result is a rule, that d
 ## Authors
 
 * **Thorben Hellweg** [thllwg](https://github.com/thllwg)
-* **Tobias Goerke**
+* **Tobias Goerke** [TobiasGoerke](https://github.com/TobiasGoerke)
+* **Magdalena Lang** [MagdalenaLang1](https://github.com/MagdalenaLang1)
 * **Ronja Köhling**
 
 ## License
