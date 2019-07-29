@@ -4,10 +4,8 @@ library(randomForest)
 
 data(iris)
 
-train = iris
-
 # our goal is to predict the species
-task = makeClassifTask(data = train, target = "Species", id = "iris")
+task = makeClassifTask(data = iris, target = "Species", id = "iris")
 
 # setting up a learner
 #lrn.rpart = makeLearner("classif.rpart")
@@ -19,12 +17,12 @@ model = mlr::train(learner = lrn, task = task)
 # Setting up a perturbation function. As we want explain a tabular instance (an observation in our dataset iris), we stick to a featureless tabular perturbation function
 perturbator = makePerturbFun("tabular.featureless")
 
-# Explain model with anchors
-explainer = anchors(train, model, perturbator)
+# Prepare explainer to explain model with anchors
+explainer = anchors(iris, model, perturbator)
 
-train = train[train[,"Species"]=="versicolor",]
-
-explanations = explain(train[1:2,], explainer)
+# Produce explanations for selected instances
+toExplain = iris[iris[,"Species"]=="versicolor",]
+explanations = explain(toExplain[1:2,], explainer)
 
 printExplanations(explainer, explanations)
 
