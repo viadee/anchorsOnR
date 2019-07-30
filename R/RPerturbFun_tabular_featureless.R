@@ -20,7 +20,7 @@ perturbate.tabular.featureless <- function(perturbFun, dataset, datasetDisc, ins
 
     lvl = which(sapply(lvls, function(x){
       if(stringr::str_detect(x,"[(\\[]\\d+\\.?(\\d+)?,\\d+\\.?(\\d+)?[)\\]]")){
-        return(isInIntervall(x, instance[i]))
+        return(isInIntervall(x, as.numeric(instance[i])))
       } else {
         return(x == instance[i])
       }

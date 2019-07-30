@@ -9,10 +9,5 @@ performance_model = function(pred, measures, task = NULL, model = NULL, feats = 
       acc = length(ifelse(as.character(pred$data$truth) == as.character(pred$data$response), TRUE, FALSE)) / length(pred$data$truth)
       return(acc)
     }
-
-
-
   }
-
-
 }
