@@ -18,7 +18,8 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
   }
 
   ## TODO: should we pass this without parameters?? (takes default: ip = "localhost", port = 6666) -> should consider introducing a settings object to always pass to initAnchors
-  explainer$connection <- initAnchors()
+  backend_connection <- initAnchors()
+  explainer$connection <- backend_connection
 
   trainSet = explainer$trainingsData[,-explainer$target]
   trainSetDisc = explainer$discTrainingsData
@@ -46,43 +47,27 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
     }))
 
     # set meta data for IPC
-    id = uuid::UUIDgenerate()
-    count = 1
-    status = "request"
+    communication_id = uuid::UUIDgenerate()
 
-    requestParams = list("id" = c(id),
-      "count" = c(count),
-      "status" = c(status),
-      "precision" = c(0),
-      "instance" = length(instance) - 1)
+    # Trigger first call and start anchors
+    initialize.explanation.request(backend_connection, communication_id, length(instance) - 1)
 
-    instanceJSON = as.character(jsonlite::toJSON(requestParams, auto_unbox = T))
-    con = explainer$connection
-    writeLines(instanceJSON, con)
+    while(TRUE) {
+      response <- await.server.response(backend_connection)
 
-    responseRaw = character(0)
-    response = character(0)
+      if (response$status == "response"){
+        # Server sends stop
+        break;
+      }
 
-    # TODO is busy waiting the way to go here?
-    while(length(responseRaw) == 0){
-      # check for response
-      responseRaw = readLines(con)
-      if(identical(responseRaw, character(0))) next
-
-      # get response
-      response = jsonlite::fromJSON(responseRaw, simplifyMatrix = F, simplifyVector = T, flatten = T, simplifyDataFrame = F)
-
-      # route command based on status
-      type = response$status
-
-      if (type == "eval_request"){
+      if (response$status == "eval_request"){
+        # Anchors requests perturbation and model call
         cat(".")
-        #cat(as.character(response))
 
         anchors = unlist(response$anchors)
         samplesToEvaluate = response$samplesToEvaluate
-        # Create pertubations for rule
 
+        # Create pertubations for rule
         instancesDf = do.call(rbind, lapply(1:samplesToEvaluate, function(x){
           perturbate(explainer$perturbator, trainSet, trainSetDisc, instance, c(anchors, explainer$target))
         }))
@@ -93,15 +78,8 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
         matchingLabels = precision * samplesToEvaluate
 
         # Send precision to anchors
-        responseList = list("id" = c(id),
-             "count" = c(count),
-             "status" = c("eval_response"),
-             "matchingLabels" = c(matchingLabels),
-             "precision" = c(precision))
-        instanceJSON = as.character(jsonlite::toJSON(responseList, auto_unbox = T))
-        writeLines(instanceJSON, con)
-
-      } else if (type == "coverage_request") {
+        respond.with.precision(backend_connection, communication_id, matchingLabels, precision)
+      } else if (response$status == "coverage_request") {
         cat("+")
         features = unlist(response$features)
 
@@ -129,24 +107,12 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
           featureVec[i] = names(lvl)
         }
 
-
         matchingRows = nrow(suppressMessages(plyr::match_df(reducedPerturbations, featureVec)))
         coverage = matchingRows / nrow(reducedPerturbations)
 
-
         # Send coverage to anchors
-        responseList = list("id" = c(id),
-                            "count" = c(count),
-                            "status" = c("coverage_response"),
-                            "coverage" = c(coverage))
-        coverageJSON = jsonlite::toJSON(responseList, auto_unbox = T)
-        writeLines(coverageJSON, con)
-
-      } else if (type == "response"){
-        break;
+        respond.with.coverage(backend_connection, communication_id, coverage)
       }
-
-      responseRaw = character(0)
     }
     if ("anchorResult" %in% names(response)){
       cat(" \r"); cat("[Explained] Instance "); cat("\n");

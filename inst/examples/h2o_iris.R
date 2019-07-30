@@ -17,6 +17,6 @@ discIris=iris
 discIris = arules::discretizeDF(discIris)
 explainer = anchors(iris, model, pert, target = 5, discX=discIris)
 
-explanations = explain(iris[sample(nrow(iris), 2), ], explainer)
+explanations = explain(iris[sample(nrow(iris), 1), ], explainer)
 
 printExplanations(explainer, explanations)
