@@ -5,7 +5,7 @@
 #' @importFrom stats dist
 #' @export
 explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
-                               feature_select = 'auto', ...) {
+                               feature_select = 'auto', probKeepPerturbations=0.6, ...) {
   checkmate::assert_true(is.data_frame_explainer(explainer))
   m_type <- model_type(explainer)
   o_type <- output_type(explainer)
@@ -21,8 +21,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
   explainer$connection <- initAnchors()
 
   trainSet = explainer$trainingsData[,-explainer$target]
-  trainSetDisc = explainer$discTrainingsData
-
+  bins= explainer$bins
   rules = list()
 
   explanations = data.frame(matrix(ncol = 12, nrow = 0))
@@ -41,8 +40,8 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
 
     # Featureless perturbations that are required to obtain coverage of a rule
     coverage_perturbations <- do.call(rbind, lapply(1:1000, function(x){
-      perturbate(makePerturbFun("tabular.featurelessDisc"), trainSet, trainSetDisc,
-                 instance, c(integer(0), explainer$target))
+      perturbate(makePerturbFun("tabular.featurelessDisc"), trainSet, bins,
+                 instance, c(integer(0), explainer$target), probKeepPerturbations)
     }))
 
     # set meta data for IPC
@@ -83,8 +82,9 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
         samplesToEvaluate = response$samplesToEvaluate
         # Create pertubations for rule
 
+
         instancesDf = do.call(rbind, lapply(1:samplesToEvaluate, function(x){
-          perturbate(explainer$perturbator, trainSet, trainSetDisc, instance, c(anchors, explainer$target))
+          perturbate(explainer$perturbator, trainSet, bins, instance, c(anchors, explainer$target), probKeepPerturbations)
         }))
         pred = predict_model(explainer$model, instancesDf, ...) #, type = o_type
 
@@ -109,30 +109,16 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
         colnames(featureVec) = features
         reducedPerturbations = as.data.frame(unclass(coverage_perturbations[,features]))
         colnames(reducedPerturbations) = features
+
         for(i in 1:ncol(reducedPerturbations)){
 
-          lvls = levels(reducedPerturbations[,i])
+          bin= provideBin.numeric(featureVec[i], bins[[features[i]]]$cuts, bins[[features[i]]]$right)
+          featureVec[i] = bin
 
-          lvl = which(sapply(lvls, function(x){
-            if(stringr::str_detect(x,"[(\\[]\\d+\\.?(\\d+)?,\\d+\\.?(\\d+)?[)\\]]")){
-              return(isInIntervall(x, featureVec[i]))
-            } else {
-              return(x == featureVec[i])
-            }
-          }))
-
-          # related to issue #8 | FIXME!
-          if (length(lvl)>1){
-            lvl = lvl[1]
-          }
-
-          featureVec[i] = names(lvl)
         }
-
 
         matchingRows = nrow(suppressMessages(plyr::match_df(reducedPerturbations, featureVec)))
         coverage = matchingRows / nrow(reducedPerturbations)
-
 
         # Send coverage to anchors
         responseList = list("id" = c(id),
@@ -148,13 +134,14 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
 
       responseRaw = character(0)
     }
+
+
     if ("anchorResult" %in% names(response)){
       cat(" \r"); cat("[Explained] Instance "); cat("\n");
       rules = response$anchorResult[[1]]
-      featuresWeight = sapply(rules$canonicalFeatures, getFeatureWeight, candidates = rules, instance = instance, dataset = explainer$trainingsData, datasetDisc = explainer$discTrainingsData)
-      addedCoverage = sapply(rules$canonicalFeatures, getAddedCoverage, candidates = rules, instance = instance, dataset = explainer$trainingsData, datasetDisc = explainer$discTrainingsData)
-      featuresText = sapply(rules$canonicalFeatures, getFeatureText, candidates = rules, instance = instance, dataset = explainer$trainingsData, datasetDisc = explainer$discTrainingsData)
-
+      featuresWeight = sapply(rules$canonicalFeatures, getFeatureWeight, candidates = rules, instance = instance, dataset = explainer$trainingsData)
+      addedCoverage = sapply(rules$canonicalFeatures, getAddedCoverage, candidates = rules, instance = instance, dataset = explainer$trainingsData)
+      featuresText = sapply(rules$canonicalFeatures, getFeatureText, candidates = rules, instance = instance, dataset = explainer$trainingsData, bins = explainer$bins)
 
       for(j in names(featuresText)){
         ridx = 1 + nrow(explanations)

@@ -10,26 +10,14 @@ makeRPerturbFun.tabular.featureless <- function(){
   )
 }
 
-perturbate.tabular.featureless <- function(perturbFun, dataset, datasetDisc, instance, anchors, ...){
+perturbate.tabular.featureless <- function(perturbFun, dataset, bins, instance, anchors, probKeep,...){
 
-  pertCols = setdiff(seq(1, ncol(datasetDisc), 1), anchors)
+  pertCols = setdiff(seq(1, ncol(dataset), 1), anchors)
 
   for(i in pertCols){
 
-    lvls = levels(datasetDisc[,i])
-
-    lvl = which(sapply(lvls, function(x){
-      if(stringr::str_detect(x,"[(\\[]\\d+\\.?(\\d+)?,\\d+\\.?(\\d+)?[)\\]]")){
-        return(isInIntervall(x, instance[i]))
-      } else {
-        return(x == instance[i])
-      }
-    }))
-
-    #group = which(datasetDisc[,i] == lvls[lvl])
-
-    if (as.logical(rbinom(1,size=1,prob=2/3))){
-      instance[,i] = dataset[sample(rownames(datasetDisc), 1), i]
+    if (as.logical(rbinom(1,size=1,prob=probKeep))){
+      instance[,i] = dataset[sample(rownames(dataset), 1), i]
     }
   }
 

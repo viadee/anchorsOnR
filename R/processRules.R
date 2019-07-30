@@ -1,31 +1,33 @@
 
-getFeatureWeight <- function(candidates, feature, instance, dataset, datasetDisc){
+getFeatureWeight <- function(candidates, feature, instance, dataset){
   if (candidates$addedFeature == feature){
     added = candidates$addedPrecision
     names(added) = feature+1
     return(added)
   } else if ("parentCandidate" %in% names(candidates)){
-    return (getFeatureWeight(candidates = candidates$parentCandidate, feature = feature, instance = instance, dataset = dataset, datasetDisc = datasetDisc))
+    return (getFeatureWeight(candidates = candidates$parentCandidate, feature = feature, instance = instance, dataset = dataset))
   }
 }
 
-getAddedCoverage <- function(candidates, feature, instance, dataset, datasetDisc){
+getAddedCoverage <- function(candidates, feature, instance, dataset){
   if (candidates$addedFeature == feature){
     added = if(is.null(candidates$addedCoverage)) "?" else candidates$addedCoverage
     names(added) = feature+1
     return(added)
   } else if ("parentCandidate" %in% names(candidates)){
-    return (getAddedCoverage(candidates = candidates$parentCandidate, feature = feature, instance = instance, dataset = dataset, datasetDisc = datasetDisc))
+    return (getAddedCoverage(candidates = candidates$parentCandidate, feature = feature, instance = instance, dataset = dataset))
   }
 }
 
-getFeatureText <- function(candidates, feature, instance, dataset, datasetDisc){
+getFeatureText <- function(candidates, feature, instance, dataset, bins){
   if (candidates$addedFeature == feature){
-    featureDesc = paste(colnames(dataset)[feature+1], "IN INLC RANGE", datasetDisc[as.numeric(rownames(instance)),feature+1])
+    bin= provideBin.numeric(instance[feature+1], bins[[feature+1]]$cuts, bins[[feature+1]]$right)
+
+    featureDesc = paste(colnames(dataset)[feature+1], "IN", buildDescription.numeric(bin, bins[[feature+1]]$cuts, bins[[feature+1]]$right))
     names(featureDesc) = feature+1
     return(featureDesc)
   } else if ("parentCandidate" %in% names(candidates)){
-    return (getFeatureText(candidates = candidates$parentCandidate, feature = feature, instance = instance, dataset = dataset, datasetDisc = datasetDisc))
+    return (getFeatureText(candidates = candidates$parentCandidate, feature = feature, instance = instance, dataset = dataset, bins = bins))
   }
 }
 

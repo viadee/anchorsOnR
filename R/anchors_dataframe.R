@@ -3,7 +3,7 @@
 #' @importFrom stats predict sd quantile density
 #' @export
 #'
-anchors.data.frame <- function(x, model, perturbator = NULL, discX, target = NULL, ...) {
+anchors.data.frame <- function(x, model, perturbator = NULL, bins, target = NULL, ...) {
 
   explainer <- c(as.list(environment()), list(...))
 
@@ -17,7 +17,7 @@ anchors.data.frame <- function(x, model, perturbator = NULL, discX, target = NUL
     BBmisc::stopf("Cannot determine target. Pleaser either provide target or a WrappedModel.")
   }
 
-  explainer$discTrainingsData <- discX
+  explainer$bins <- bins
 
   if (is.null(perturbator)) perturbator <- makePerturbFun("tabular.featureless")
   explainer$perturbator <- perturbator
