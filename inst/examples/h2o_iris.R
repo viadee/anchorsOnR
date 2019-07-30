@@ -11,12 +11,15 @@ model = h2o.naiveBayes(x =1:4,
         y = 5,
         training_frame = iris.data)
 
-pert = makePerturbFun(cl = "tabular.featureless")
+profvis::profvis( {
+  pert = makePerturbFun(cl = "tabular.featureless")
 
-discIris=iris
-discIris = arules::discretizeDF(discIris)
-explainer = anchors(iris, model, pert, target = 5, discX=discIris)
+  discIris=iris
+  discIris = arules::discretizeDF(discIris)
+  explainer = anchors(iris, model, pert, target = 5, discX=discIris)
 
-explanations = explain(iris[sample(nrow(iris), 1), ], explainer)
+  explanations = explain(iris[sample(nrow(iris), 1), ], explainer)
 
-printExplanations(explainer, explanations)
+  printExplanations(explainer, explanations)
+})
+

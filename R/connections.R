@@ -58,6 +58,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
       stdout <- .anchors.getTmpFile("stdout")
       .anchors.startJar(ip = ip, port = port, name = name, ice_root = tempdir(), stdout = stdout, bind_to_localhost = FALSE, log_dir = NA, log_level = NA, context_path = NA)
 
+      # TODO takes too long, required?!
       Sys.sleep(5L)
 
       cat("Starting Anchors JVM and connecting: ")

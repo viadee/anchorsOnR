@@ -9,6 +9,7 @@ cleanupPackageNames = function(pkgs) {
 }
 
 
+# TODO accoring to profiling, this method is rather expensive.
 isInIntervall <- function( intervall, wert){
   # Splitting into lower and upper boarder of the given intervall
   intervallpreprocessed <- strsplit(intervall, ",")
@@ -21,6 +22,7 @@ isInIntervall <- function( intervall, wert){
   lower <- as.numeric(gsub("\\[|\\(", "", lower))
   upper <- as.numeric(gsub("\\]|\\)", "", upper))
   # Checks if given value is in the intervall
+  # TODO this seems to be by far the most expensive line
   return((wert >lower || (wert==lower & lower_incl) )& ((wert < upper || (wert==upper & upper_incl))))
 }
 

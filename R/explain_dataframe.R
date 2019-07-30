@@ -68,6 +68,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
         samplesToEvaluate = response$samplesToEvaluate
 
         # Create pertubations for rule
+        # TODO move to samplesToEvaluate to parameter
         instancesDf = do.call(rbind, lapply(1:samplesToEvaluate, function(x){
           perturbate(explainer$perturbator, trainSet, trainSetDisc, instance, c(anchors, explainer$target))
         }))
@@ -75,40 +76,14 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
 
         precision = performance_model(pred, measures = list(acc))[[1]] #FIXME
 
+        # TODO wouldn't it better to straight away only send the correctly predicted labels?
         matchingLabels = precision * samplesToEvaluate
 
         # Send precision to anchors
         respond.with.precision(backend_connection, communication_id, matchingLabels, precision)
       } else if (response$status == "coverage_request") {
         cat("+")
-        features = unlist(response$features)
-
-        featureVec = as.data.frame(unclass(instance[,features]))
-        colnames(featureVec) = features
-        reducedPerturbations = as.data.frame(unclass(coverage_perturbations[,features]))
-        colnames(reducedPerturbations) = features
-        for(i in 1:ncol(reducedPerturbations)){
-
-          lvls = levels(reducedPerturbations[,i])
-
-          lvl = which(sapply(lvls, function(x){
-            if(stringr::str_detect(x,"[(\\[]\\d+\\.?(\\d+)?,\\d+\\.?(\\d+)?[)\\]]")){
-              return(isInIntervall(x, featureVec[i]))
-            } else {
-              return(x == featureVec[i])
-            }
-          }))
-
-          # related to issue #8 | FIXME!
-          if (length(lvl)>1){
-            lvl = lvl[1]
-          }
-
-          featureVec[i] = names(lvl)
-        }
-
-        matchingRows = nrow(suppressMessages(plyr::match_df(reducedPerturbations, featureVec)))
-        coverage = matchingRows / nrow(reducedPerturbations)
+        coverage <- calculate.coverage(instance, unlist(response$features), coverage_perturbations)
 
         # Send coverage to anchors
         respond.with.coverage(backend_connection, communication_id, coverage)
