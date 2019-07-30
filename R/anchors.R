@@ -22,7 +22,7 @@
 #' @return Return an explainer which can be used together with [explain()] to
 #' explain model predictions.
 #'
-#' @name lime
+#' @name anchors
 #' @export
 anchors <- function(x, model, perturbator, discX = NULL, target = NULL, ...) {
   UseMethod('anchors', x)

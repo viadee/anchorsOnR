@@ -15,6 +15,6 @@ pert = makePerturbFun(cl = "tabular.featureless")
 
 explainer = anchors(iris, model, pert, target = 5)
 
-explanations = explain(iris[1:6,], explainer)
+explanations = explain(iris[sample(nrow(iris), 2), ], explainer)
 
 printExplanations(explainer, explanations)

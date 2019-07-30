@@ -12,7 +12,6 @@ anchors.data.frame <- function(x, model, perturbator = NULL, discX = NULL, targe
   checkmate::assert_function(preprocess)
   if (is.null(perturbator)) perturbator <- makePerturbFun("tabular.featureless")
   explainer <- c(as.list(environment()), list(...))
-  #explainer = list(...)
   explainer$trainingsData <- x
   if (!inherits(model, "WrappedModel")){
     explainer$target = target
@@ -127,6 +126,12 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
     # FIXME - what is wrong here? I don't see a problem
     instancePrediction = performance_model(prediction, measures = list(acc))
 
+    # Featureless perturbations that are required to obtain coverage of a rule
+    coverage_perturbations <- do.call(rbind, lapply(1:1000, function(x){
+      perturbate(makePerturbFun("tabular.featurelessDisc"), trainSet, trainSetDisc,
+                 instance, c(integer(0), explainer$target))
+    }))
+
     # set meta data for IPC
     id = uuid::UUIDgenerate()
     count = 1
@@ -136,7 +141,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
       "count" = c(count),
       "status" = c(status),
       "precision" = c(0),
-      "instance" = length(instance) -1)
+      "instance" = length(instance) - 1)
 
     instanceJSON = as.character(jsonlite::toJSON(requestParams, auto_unbox = T))
     con = explainer$connection
@@ -184,16 +189,12 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
         writeLines(instanceJSON, con)
 
       } else if (type == "coverage_request") {
-        cat(".")
+        cat("+")
         features = unlist(response$features)
-
-        perturbationsDf = do.call(rbind, lapply(1:1000, function(x){
-          perturbate(makePerturbFun("tabular.featurelessDisc"), trainSet, trainSetDisc, instance, c(integer(0), explainer$target))
-        }))
 
         featureVec = as.data.frame(unclass(instance[,features]))
         colnames(featureVec) = features
-        reducedPerturbations = as.data.frame(unclass(perturbationsDf[,features]))
+        reducedPerturbations = as.data.frame(unclass(coverage_perturbations[,features]))
         colnames(reducedPerturbations) = features
         for(i in 1:ncol(reducedPerturbations)){
 
@@ -252,7 +253,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
         explanations[ridx, "feature_value"] = instance[,as.numeric(j)]
         explanations[ridx, "feature_weight"] = featuresWeight[[j]]
         explanations[ridx, "added_coverage"] = addedCoverage[[j]]
-        explanations[ridx,"feature_desc"] = featuresText[[j]]
+        explanations[ridx, "feature_desc"] = featuresText[[j]]
         explanations[ridx, "data"] = collapse(unlist(instance))
         explanations[ridx, "prediction"] = prediction$data$response
         explanations[ridx, "precision"] = rules$precision
