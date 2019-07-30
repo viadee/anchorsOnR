@@ -45,7 +45,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
   con = NULL
 
   con = tryCatch({
-    con = socketConnection(host = ip, port = port, timeout = 1)
+    con = socketConnection(host = ip, port = port, blocking = F, timeout = 1)
   }, error = function(cond){
     # no need to handle failure
   }, warning = function(cond){
@@ -56,14 +56,14 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
     if (ip == "localhost" || ip == "127.0.0.1"){
       cat("\nAnchors is not running yet, starting it now...\n")
       stdout <- .anchors.getTmpFile("stdout")
-      .anchors.startJar(ip = ip, port = port, name = name, ice_root = tempdir(), stdout = stdout, bind_to_localhost = FALSE, log_dir = NA, log_level = NA, context_path = NA)
-
-      # TODO takes too long, required?!
-      Sys.sleep(5L)
+      .anchors.startJar(ip = ip, port = port, name = name,
+                        ice_root = tempdir(), stdout = stdout,
+                        bind_to_localhost = FALSE, log_dir = NA,
+                        log_level = NA, context_path = NA)
 
       cat("Starting Anchors JVM and connecting: ")
       con = tryCatch({
-        con = socketConnection(host = ip, port = port, timeout = 5L)
+        con = socketConnection(host = ip, port = port, blocking = F, timeout = 10L)
       }, error = function(cond){
         message(cond)
         return(NULL)
@@ -80,7 +80,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
   if (is.null(con)){
     stop("Anchors failed to start, stopping execution.")
   }
-  cat("Connection successful!\n\n")
+  cat("Successfully connected to anchorj!\n\n")
   .anchors.jar.env$port <- port #Ensure right port is called when quitting R
   cat("\n")
 
@@ -218,14 +218,14 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
    cat("\n")
 
   # Print a java -version to the console
-  system2(command, c(mem_args, "-version"))
+  system2(command, c(mem_args, "-version"), wait = T)
   cat("\n")
   # Run the real anchors java command
   rc = system2(command,
                args=args,
                stdout=stdout,
                stderr=stderr,
-               wait=FALSE)
+               wait=T)
   if (rc != 0L) {
     stop(sprintf("Failed to exec %s with return code=%s", jar_file, as.character(rc)))
   }

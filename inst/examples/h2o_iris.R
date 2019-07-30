@@ -4,6 +4,7 @@ library("h2o")
 data(iris)
 
 h2o.init()
+browser()
 
 iris.data = as.h2o(iris, destination_frame = "iris.hex")
 
@@ -11,7 +12,7 @@ model = h2o.naiveBayes(x =1:4,
         y = 5,
         training_frame = iris.data)
 
-profvis::profvis( {
+#profvis::profvis( {
   pert = makePerturbFun(cl = "tabular.featureless")
 
   discIris=iris
@@ -21,5 +22,5 @@ profvis::profvis( {
   explanations = explain(iris[sample(nrow(iris), 1), ], explainer)
 
   printExplanations(explainer, explanations)
-})
+#})
 
