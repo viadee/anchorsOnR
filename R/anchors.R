@@ -12,10 +12,9 @@
 #'
 #' @param perturbator The pertubator used to perturbate the instances to be explained.
 #'
-#' @param discX A discretized training dataset. If none is provided, autodiscretisation
-#' is applied to \code{x}.
+#' @param discX A discretized training dataset.
 #'
-#' @param target Target column in x. Only provide this if model is not of class "WrappedModel".
+#' @param target Target column in x. Only need to provide this if model is not of class "WrappedModel".
 #'
 #' @param ... Arguments passed on to methods
 #'
@@ -24,7 +23,7 @@
 #'
 #' @name anchors
 #' @export
-anchors <- function(x, model, perturbator, discX = NULL, target = NULL, ...) {
+anchors <- function(x, model, perturbator = NULL , discX, target = NULL, ...) {
   UseMethod('anchors', x)
 }
 

@@ -17,6 +17,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
     labels <- NULL
   }
 
+  ## TODO: should we pass this without parameters?? (takes default: ip = "localhost", port = 6666) -> should consider introducing a settings object to always pass to initAnchors
   explainer$connection <- initAnchors()
 
   trainSet = explainer$trainingsData[,-explainer$target]
@@ -30,6 +31,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
                              "feature_desc", "data", "prediction", "precision")
 
   cat("Explaining ",nrow(x)," observations. This may take a while."); cat("\n");
+
   for (i in 1:nrow(x)){
     cat("[Explaining] Instance ", i, ": ")
     instance = x[i,]

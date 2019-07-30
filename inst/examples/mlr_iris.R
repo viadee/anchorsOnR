@@ -17,8 +17,11 @@ model = mlr::train(learner = lrn, task = task)
 # Setting up a perturbation function. As we want explain a tabular instance (an observation in our dataset iris), we stick to a featureless tabular perturbation function
 perturbator = makePerturbFun("tabular.featureless")
 
+
+discIris=iris
+discIris = arules::discretizeDF(discIris)
 # Prepare explainer to explain model with anchors
-explainer = anchors(iris, model, perturbator)
+explainer = anchors(iris, model, perturbator, discX=discIris)
 
 # Produce explanations for selected instances
 toExplain = iris[iris[,"Species"]=="versicolor",]

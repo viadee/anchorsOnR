@@ -31,7 +31,7 @@ explanations = explain(diabetes[1:2,], explainer)
 
 printExplanations(explainer, explanations)
 
-
+levels(discDiabetes[,1])
 
 ##TODO: plotExplanations(explanations)
 

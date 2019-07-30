@@ -13,7 +13,9 @@ model = h2o.naiveBayes(x =1:4,
 
 pert = makePerturbFun(cl = "tabular.featureless")
 
-explainer = anchors(iris, model, pert, target = 5)
+discIris=iris
+discIris = arules::discretizeDF(discIris)
+explainer = anchors(iris, model, pert, target = 5, discX=discIris)
 
 explanations = explain(iris[sample(nrow(iris), 2), ], explainer)
 
