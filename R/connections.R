@@ -225,7 +225,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
                args=args,
                stdout=stdout,
                stderr=stderr,
-               wait=T)
+               wait=F)
   if (rc != 0L) {
     stop(sprintf("Failed to exec %s with return code=%s", jar_file, as.character(rc)))
   }
