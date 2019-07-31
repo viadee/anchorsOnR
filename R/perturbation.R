@@ -21,6 +21,7 @@ makePerturbFun <- function(cl, id = cl, ..., par.vals = list(), config = list())
   #  stopf("Couldn't find perturbation function '%s'\nDid you mean one of these perturbation functions instead: %s",
   #        cl, stri_flatten(possibles, collapse = " "))
   }
+
   wl = do.call(constructor, list())
   wl$config = config
   if (!missing(id)) {
@@ -37,6 +38,7 @@ makePerturbFun <- function(cl, id = cl, ..., par.vals = list(), config = list())
 #  if (!is.null(predict.threshold))
  #   wl = setPredictThreshold(wl, predict.threshold)
 #  wl$fix.factors.prediction = fix.factors.prediction
+
   return(wl)
 }
 
