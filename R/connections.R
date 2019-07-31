@@ -45,7 +45,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
   con = NULL
 
   con = tryCatch({
-    con = socketConnection(host = ip, port = port, timeout = 1)
+    con = socketConnection(host = ip, port = port, blocking = F, timeout = 1)
   }, error = function(cond){
     # no need to handle failure
   }, warning = function(cond){
@@ -56,13 +56,14 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
     if (ip == "localhost" || ip == "127.0.0.1"){
       cat("\nAnchors is not running yet, starting it now...\n")
       stdout <- .anchors.getTmpFile("stdout")
-      .anchors.startJar(ip = ip, port = port, name = name, ice_root = tempdir(), stdout = stdout, bind_to_localhost = FALSE, log_dir = NA, log_level = NA, context_path = NA)
-
-      Sys.sleep(5L)
+      .anchors.startJar(ip = ip, port = port, name = name,
+                        ice_root = tempdir(), stdout = stdout,
+                        bind_to_localhost = FALSE, log_dir = NA,
+                        log_level = NA, context_path = NA)
 
       cat("Starting Anchors JVM and connecting: ")
       con = tryCatch({
-        con = socketConnection(host = ip, port = port, timeout = 5L)
+        con = socketConnection(host = ip, port = port, blocking = F, timeout = 10L)
       }, error = function(cond){
         message(cond)
         return(NULL)
@@ -79,7 +80,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
   if (is.null(con)){
     stop("Anchors failed to start, stopping execution.")
   }
-  cat("Connection successful!\n\n")
+  cat("Successfully connected to anchorj!\n\n")
   .anchors.jar.env$port <- port #Ensure right port is called when quitting R
   cat("\n")
 
@@ -217,14 +218,14 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
    cat("\n")
 
   # Print a java -version to the console
-  system2(command, c(mem_args, "-version"))
+  system2(command, c(mem_args, "-version"), wait = T)
   cat("\n")
   # Run the real anchors java command
   rc = system2(command,
                args=args,
                stdout=stdout,
                stderr=stderr,
-               wait=FALSE)
+               wait=F)
   if (rc != 0L) {
     stop(sprintf("Failed to exec %s with return code=%s", jar_file, as.character(rc)))
   }
@@ -324,67 +325,6 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
     }
   }
   return(possible_file)
-#
-#   branchFile <- file.path(pkg_path, "branch.txt")
-#   branch <- readLines(branchFile)
-#
-#   buildnumFile <- file.path(pkg_path, "buildnum.txt")
-#   version <- readLines(buildnumFile)
-#
-#   # mockup h2o package as CRAN release (no java/h2o.jar) hook h2o.jar url - PUBDEV-3534
-#   jarFile <- file.path(pkg_path, "jar.txt")
-#   if (file.exists(jarFile) && !nzchar(own_jar))
-#     own_jar <- readLines(jarFile)
-#
-#   dest_folder <- file.path(pkg_path, "java")
-#   if (!file.exists(dest_folder)) {
-#     dir.create(dest_folder)
-#   }
-#
-#   dest_file <- file.path(dest_folder, "h2o.jar")
-#
-#   # Download if h2o.jar doesn't already exist or user specifies force overwrite
-#   if (nzchar(own_jar) && is_url(own_jar)) {
-#     h2o_url = own_jar # md5 must have same file name and .md5 suffix
-#     md5_url = paste(own_jar, ".md5", sep="")
-#   } else {
-#     base_url <- paste("s3.amazonaws.com/h2o-release/h2o", branch, version, "Rjar", sep = "/")
-#     h2o_url <- paste("http:/", base_url, "h2o.jar", sep = "/")
-#     # Get MD5 checksum
-#     md5_url <- paste("http:/", base_url, "h2o.jar.md5", sep = "/")
-#   }
-#   # ttt <- getURLContent(md5_url, binary = FALSE)
-#   # tcon <- textConnection(ttt)
-#   # md5_check <- readLines(tcon, n = 1)
-#   # close(tcon)
-#   md5_file <- tempfile(fileext = ".md5")
-#   download.file(md5_url, destfile = md5_file, mode = "w", cacheOK = FALSE, quiet = TRUE)
-#   md5_check <- readLines(md5_file, n = 1L)
-#   if (nchar(md5_check) != 32) stop("md5 malformed, must be 32 characters (see ", md5_url, ")")
-#   unlink(md5_file)
-#
-#   # Save to temporary file first to protect against incomplete downloads
-#   temp_file <- paste(dest_file, "tmp", sep = ".")
-#   cat("Performing one-time download of h2o.jar from\n")
-#   cat("    ", h2o_url, "\n")
-#   cat("(This could take a few minutes, please be patient...)\n")
-#   download.file(url = h2o_url, destfile = temp_file, mode = "wb", cacheOK = FALSE, quiet = TRUE)
-#
-#   # Apply sanity checks
-#   if(!file.exists(temp_file))
-#     stop("Error: Transfer failed. Please download ", h2o_url, " and place h2o.jar in ", dest_folder)
-#
-#   md5_temp_file = md5sum(temp_file)
-#   md5_temp_file_as_char = as.character(md5_temp_file)
-#   if(md5_temp_file_as_char != md5_check) {
-#     cat("Error: Expected MD5: ", md5_check, "\n")
-#     cat("Error: Actual MD5  : ", md5_temp_file_as_char, "\n")
-#     stop("Error: MD5 checksum of ", temp_file, " does not match ", md5_check)
-#   }
-#
-#   # Move good file into final position
-#   file.rename(temp_file, dest_file)
-#   return(dest_file[file.exists(dest_file)])
 }
 
 #' Retrieve an Anchors Connection

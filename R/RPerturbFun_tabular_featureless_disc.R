@@ -1,37 +1,42 @@
-makeRPerturbFun.tabular.featurelessDisc <- function(){
+makeRPerturbFun.tabular.featurelessDisc <- function() {
   makeRPerturbFunTabular(
     cl = "tabular.featurelessDisc",
     package = "stringr",
-    # properties = c("factors, text, numerical"),
     name = "Featureless Perturbation",
     short.name = "fld",
-    note = ""#,
-    #callees = character(0)
+    note = ""
   )
 }
 
-perturbate.tabular.featurelessDisc <- function(perturbFun, dataset, datasetDisc, instance, anchors, ...){
+perturbate.tabular.featurelessDisc <-
+  function(perturbFun,
+           dataset,
+           bins,
+           instance,
+           anchors,
+           probKeep,
+           ...) {
+    pertCols = setdiff(seq(1, ncol(dataset), 1), anchors)
 
-  pertCols = setdiff(seq(1, ncol(datasetDisc), 1), anchors)
-
-  for(i in pertCols){
-
-    lvls = levels(datasetDisc[,i])
-
-    lvl = which(sapply(lvls, function(x){
-      if(stringr::str_detect(x,"[(\\[]\\d+\\.?(\\d+)?,\\d+\\.?(\\d+)?[)\\]]")){
-        return(isInIntervall(x, instance[i]))
-      } else {
-        return(x == instance[i])
+    for (i in pertCols) {
+      bin <- bins[[i]]
+      # Check if discretization has been disabled
+      if (!is.null(bin$doDiscretize) && !bin$doDiscretize) {
+        # Basically to featureless perturbation for this column
+        if (as.logical(rbinom(1, size = 1, prob = probKeep))) {
+          instance[, i] = dataset[sample(rownames(dataset), 1), i]
+        }
+        next
       }
-    }))
+      # Check bin of instance
+      binNr = provideBin.numeric(instance[i], bin$cuts, bin$right)
+      binsNo = 1:(length(bins[[i]]$cuts) + 1)
 
-    lvl = names(lvl)
-    instance[,i] = sample(c(lvl,lvls[-match(lvl,lvls)]), 1, p=c(0.6,rep((1-0.6)/(length(lvls)-1),length(lvls)-1)))
-    #group = which(datasetDisc[,i] != lvls[lvl])
+      instance[, i] = sample(c(binNr, binsNo[-binNr]), 1,
+                             p = c(probKeep, rep((1 - probKeep) / length(bin$cuts),
+                                                 length(bin$cuts)
+                             )))
+    }
 
-    #instance[,i] = datasetDisc[sample(datasetDisc, 1), i]
+    return(instance)
   }
-
-  return(instance)
-}

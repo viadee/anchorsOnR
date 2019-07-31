@@ -35,6 +35,9 @@
 #' - `"tree"` : Fit a tree to select `n_features` (which needs to be a power of
 #'   2). It requires last version of `XGBoost`.
 #'
+#'
+#' @param probKeepPerturbations probability to keep an instance's attribute value when producing perturbations
+#'
 #' @param ... Parameters passed on to the `predict_model()` method
 #'
 #' @return A data.frame encoding the explanations one row per explained
