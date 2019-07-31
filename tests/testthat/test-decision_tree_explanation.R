@@ -8,6 +8,7 @@ test_that("simple decision trees get explained correctly",{
 
   library(mlr)
   library(randomForest)
+  library(anchors)
 
   set.seed(123)
 
