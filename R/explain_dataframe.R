@@ -72,6 +72,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, n_labels = NULL,
         instancesDf = do.call(rbind, lapply(1:samplesToEvaluate, function(x){
           perturbate(explainer$perturbator, trainSet, trainSetDisc, instance, c(anchors, explainer$target))
         }))
+
         pred = predict_model(explainer$model, instancesDf, ...) #, type = o_type
 
         precision = performance_model(pred, measures = list(acc))[[1]] #FIXME

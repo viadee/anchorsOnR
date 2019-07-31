@@ -27,7 +27,7 @@ perturbate.tabular.featurelessDisc <- function(perturbFun, dataset, datasetDisc,
     }))
 
     lvl = names(lvl)
-    instance[,i] = sample(c(lvl,lvls[-match(lvl,lvls)]), 1, p=c(0.6,rep((1-0.6)/(length(lvls)-1),length(lvls)-1)))
+    instance[,i] = sample(c(lvl,lvls[-match(lvl,lvls)]), 1, p=c(0.5,rep((1-0.5)/(length(lvls)-1),length(lvls)-1)))
     #group = which(datasetDisc[,i] != lvls[lvl])
 
     #instance[,i] = datasetDisc[sample(datasetDisc, 1), i]
