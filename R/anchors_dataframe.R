@@ -3,11 +3,16 @@
 #' @importFrom stats predict sd quantile density
 #' @export
 #'
-anchors.data.frame <- function(x, model, perturbator = NULL, bins, target = NULL, ...) {
+anchors.data.frame <- function(x, model, perturbator = NULL, bins = NULL, target = NULL, ...) {
 
   explainer <- c(as.list(environment()), list(...))
 
   explainer$trainingsData <- x
+
+  if (is.null(bins)) {
+    bins <- create.empty.discretization(length(x))
+    explainer$bins <- bins
+  }
 
   if(!is.null(target)){
     explainer$target = target

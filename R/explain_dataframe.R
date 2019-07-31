@@ -123,6 +123,7 @@ explain.data.frame <-
           coverage <-
             calculate.coverage(instance,
                                unlist(response$features),
+                               bins,
                                coverage_perturbations)
 
           # Send coverage to anchors

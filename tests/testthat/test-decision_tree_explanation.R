@@ -48,6 +48,8 @@ test_that("simple decision trees get explained correctly",{
   versicolor_explanation <- explanations[explanations$case == rownames(versicolor),]
   virginica_explanation <- explanations[explanations$case == rownames(virginica),]
 
+  printExplanations(explainer, explanations)
+
   expect_equal(nrow(setosa_explanation), 1)
   # TODO expect_equal(nrow(versicolor_explanation), 2)
   expect_equal(nrow(virginica_explanation), 2)
@@ -55,6 +57,4 @@ test_that("simple decision trees get explained correctly",{
   expect_true(setosa_explanation$feature == "Petal.Length")
   # TODO expect_all_true(versicolor_explanation$feature %in% c("Petal.Width", "Petal.Length"))
   expect_all_true(virginica_explanation$feature %in% c("Petal.Width", "Petal.Length"))
-
-  #printExplanations(explainer, explanations)
 })
