@@ -5,6 +5,11 @@ library(mlbench)
 data(PimaIndiansDiabetes)
 diabetes = PimaIndiansDiabetes
 
+# Manipulate the dataset to have at least one categorical predictor
+diabetes$pregnant <- as.factor(ifelse(diabetes$pregnant == 0, "none",
+                                         ifelse(diabetes$pregnant == 1, "one",
+                                                ifelse(diabetes$pregnant < 4, "few", "many"))))
+
 # our goal is to predict whether individuum has diabetes
 task = makeClassifTask(data = diabetes, target = "diabetes", id = "diabetes")
 
@@ -19,17 +24,22 @@ perturbator = makePerturbFun("tabular.featureless")
 
 # Prepare bins: a list of bins per column, the nth-entry provides the bins of the nth-column
 # Per bin: define whether numeric (for now: only works with numeric), the cuts of the bins, and whether the right or the left border of a bin is included
-discDiabetes = diabetes
 bins=list()
 r=sapply(1:(ncol(diabetes)-1), function(x){
   bin<<-list()
-  bin$numeric<<-T
-  if(x==5){
+  if (x==1) {
+    bin$doDiscretize<<-F
+    bin$numeric<<-F
+    bin$classes <- list(c("none"), c("one", "few"), c("manyy"))
+  }
+  else if(x==5){
     # for this feature, only 2 breaks work
-    cuts = arules::discretize(discDiabetes[,x], onlycuts=T, breaks = 2)
+    bin$numeric<<-T
+    cuts = arules::discretize(diabetes[,x], onlycuts=T, breaks = 2)
     bin$cuts<<-cuts[2:(length(cuts)-1)]
   }else{
-    cuts = arules::discretize(discDiabetes[,x], onlycuts=T)
+    bin$numeric<<-T
+    cuts = arules::discretize(diabetes[,x], onlycuts=T)
     bin$cuts<<-cuts[2:(length(cuts)-1)]
   }
 
@@ -38,9 +48,10 @@ r=sapply(1:(ncol(diabetes)-1), function(x){
 })
 
 # Explain model with anchors
-explainer = anchors(diabetes, model, perturbator, bins = bins)
+explainer = anchors(diabetes[,-9], model, perturbator, bins = bins)
 
-explanations = explain(diabetes[1:2,], explainer)
+explainedInstances <- diabetes[1:2,]
+explanations = explain(explainedInstances[,-9], explainer, labels = explainedInstances$diabetes)
 
 printExplanations(explainer, explanations)
 

@@ -23,11 +23,12 @@ explain.data.frame <-
       labels <- NULL
     }
 
-    ## TODO: should we pass this without parameters?? (takes default: ip = "localhost", port = 6666) -> should consider introducing a settings object to always pass to initAnchors
+    ## TODO: should we pass this without parameters??
+    # (takes default: ip = "localhost", port = 6666)
+    # -> should consider introducing a settings object to always pass to initAnchors
     backend_connection <- initAnchors()
     explainer$connection <- backend_connection
 
-    trainSet = explainer$trainingsData[, -explainer$target]
     bins = explainer$bins
     rules = list()
 
@@ -54,7 +55,10 @@ explain.data.frame <-
     for (i in 1:nrow(x)) {
       cat("[Explaining] Instance ", i, ": ")
       instance = x[i, ]
+
       prediction = predict_model(explainer$model, instance, type = o_type)
+      prediction$data$truth <- labels[i]
+
       # FIXME - what is wrong here? I don't see a problem
       instancePrediction = performance_model(prediction, measures = list(acc))
 
@@ -63,7 +67,7 @@ explain.data.frame <-
         do.call(rbind, lapply(1:1000, function(x) {
           perturbate(
             makePerturbFun("tabular.featurelessDisc"),
-            trainSet,
+            explainer$trainingsData,
             bins,
             instance,
             c(integer(0), explainer$target),
@@ -98,7 +102,7 @@ explain.data.frame <-
           instancesDf = do.call(rbind, lapply(1:samplesToEvaluate, function(x) {
             perturbate(
               explainer$perturbator,
-              trainSet,
+              explainer$trainingsData,
               bins,
               instance,
               c(anchors, explainer$target),
@@ -107,7 +111,7 @@ explain.data.frame <-
           }))
 
           pred = predict_model(explainer$model, instancesDf, ...) #, type = o_type
-
+          pred$data$truth = labels[i]
           precision = performance_model(pred, measures = list(acc))[[1]] #FIXME
 
           # TODO wouldn't it better to straight away only send the correctly predicted labels?
@@ -165,7 +169,7 @@ explain.data.frame <-
           ridx = 1 + nrow(explanations)
           explanations[ridx, "model_type"] = "Classification" #explainer$model$task.desc$type
           explanations[ridx, "case"] = rownames(instance)
-          explanations[ridx, "label"] = instance[, explainer$target]
+          explanations[ridx, "label"] = labels[i]
           explanations[ridx, "label_prob"] = rules$precision
           explanations[ridx, "feature"] = colnames(instance)[as.numeric(j)]
           explanations[ridx, "feature_value"] = instance[, as.numeric(j)]

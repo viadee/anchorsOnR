@@ -21,7 +21,6 @@ discIris = iris
 
 # Prepare bins: a list of bins per column, the nth-entry provides the bins of the nth-column
 # Per bin: define whether numeric (for now: only works with numeric), the cuts of the bins, and whether the right or the left border of a bin is included
-## TODO: for usability, should add helper function to build the bins
 bins = list()
 r = sapply(1:(ncol(iris) - 1), function(x) {
   bin <<- list()
