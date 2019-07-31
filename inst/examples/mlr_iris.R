@@ -40,4 +40,3 @@ toExplain = iris[iris[,"Species"]=="versicolor",]
 explanations = explain(toExplain[1:2,], explainer)
 
 printExplanations(explainer, explanations)
-

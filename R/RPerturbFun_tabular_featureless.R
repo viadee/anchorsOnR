@@ -15,12 +15,10 @@ perturbate.tabular.featureless <- function(perturbFun, dataset, bins, instance, 
   pertCols = setdiff(seq(1, ncol(dataset), 1), anchors)
 
   for(i in pertCols){
-
-    if (as.logical(rbinom(1,size=1,prob=probKeep))){
+    if (as.logical(rbinom(1,size = 1,prob = probKeep))){
       instance[,i] = dataset[sample(rownames(dataset), 1), i]
     }
   }
 
   return(instance)
 }
-
