@@ -31,7 +31,5 @@ explanations = explain(diabetes[1:2,], explainer)
 
 printExplanations(explainer, explanations)
 
-
-
-##TODO: plotExplanations(explanations)
+plotExplanations(explanations, colnames(diabetes)[-ncol(diabetes)])
 
