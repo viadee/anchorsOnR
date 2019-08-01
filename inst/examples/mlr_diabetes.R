@@ -19,8 +19,8 @@ lrn.rpart = makeLearner("classif.rpart")
 # train the learner on the training set
 model = mlr::train(learner = lrn.rpart, task = task)
 
-# Setting up a perturbation function. As we want explain a tabular instance (an observation in our dataset iris), we stick to a featureless tabular perturbation function
-perturbator = makePerturbFun("tabular.featureless")
+# Visualize
+rpart.plot::rpart.plot(getLearnerModel(model))
 
 # Prepare bins: a list of bins per column, the nth-entry provides the bins of the nth-column
 # Per bin: define whether numeric (for now: only works with numeric), the cuts of the bins, and whether the right or the left border of a bin is included
@@ -48,10 +48,10 @@ r=sapply(1:(ncol(diabetes)-1), function(x){
 })
 
 # Explain model with anchors
-explainer = anchors(diabetes[,-9], model, perturbator, bins = bins)
+explainer = anchors(diabetes, model, bins = bins)
 
-explainedInstances <- diabetes[1:2,]
-explanations = explain(explainedInstances[,-9], explainer, labels = explainedInstances$diabetes)
+toExplain <- diabetes[1:2,]
+explanations = explain(toExplain, explainer)
 
 printExplanations(explainer, explanations)
 

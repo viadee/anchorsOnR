@@ -1,3 +1,7 @@
+#' Explains a specific instance of a tabular explanation scenario.
+#'
+#' This scenario is described by the previously created anchors.tabular.
+#'
 #' @rdname explain
 #' @name explain
 #'
@@ -8,9 +12,8 @@ explain.data.frame <-
   function(x,
            explainer,
            labels = NULL,
-           n_labels = NULL,
            feature_select = 'auto',
-           probKeepPerturbations = 0.6,
+           probKeepPerturbations = 0.5,
            ...) {
     checkmate::assert_true(is.data_frame_explainer(explainer))
     m_type <- model_type(explainer)
@@ -19,18 +22,22 @@ explain.data.frame <-
       if (!is.null(labels) || !is.null(n_labels)) {
         warning('"labels" and "n_labels" arguments are ignored when explaining regression models')
       }
-      n_labels <- 1
-      labels <- NULL
+      stop("Regression models are not yet supported")
     }
 
-    ## TODO: should we pass this without parameters??
-    # (takes default: ip = "localhost", port = 6666)
-    # -> should consider introducing a settings object to always pass to initAnchors
-    backend_connection <- initAnchors()
-    explainer$connection <- backend_connection
+    if (!is.null(explainer$target)) {
+      targetIndex <- which(colnames(x) == explainer$target)
+      if (length(targetIndex) != 1 && targetIndex < 0)
+        stop("Could not find unambiguous target column")
 
-    bins = explainer$bins
-    rules = list()
+      if (is.null(labels))
+        labels <- x[,targetIndex]
+
+      x <- x[, -targetIndex]
+    }
+
+    if (is.null(labels))
+      stop("Either labels or a target column to be explained need to be specified")
 
     explanations = data.frame(matrix(ncol = 12, nrow = 0))
     colnames(explanations) = c(
@@ -44,9 +51,17 @@ explain.data.frame <-
       "added_coverage",
       "feature_desc",
       "data",
-      "prediction",
       "precision"
     )
+
+    bins = explainer$bins
+    rules = list()
+
+    ## TODO: should we pass this without parameters??
+    # (takes default: ip = "localhost", port = 6666)
+    # -> should consider introducing a settings object to always pass to initAnchors
+    backend_connection <- initAnchors()
+    explainer$connection <- backend_connection
 
     cat("Explaining ", nrow(x), " observations. This may take a while.")
     cat("\n")
@@ -54,23 +69,19 @@ explain.data.frame <-
 
     for (i in 1:nrow(x)) {
       cat("[Explaining] Instance ", i, ": ")
-      instance = x[i, ]
 
-      prediction = predict_model(explainer$model, instance, type = o_type)
-      prediction$data$truth <- labels[i]
-
-      # FIXME - what is wrong here? I don't see a problem
-      instancePrediction = performance_model(prediction, measures = list(acc))
+      instance = x[i,]
+      trainData <- explainer$trainingsData[, names(explainer$trainingsData) %in% names(instance)]
 
       # Featureless perturbations that are required to obtain coverage of a rule
       coverage_perturbations <-
         do.call(rbind, lapply(1:1000, function(x) {
           perturbate(
             makePerturbFun("tabular.featurelessDisc"),
-            explainer$trainingsData,
+            trainData,
             bins,
             instance,
-            c(integer(0), explainer$target),
+            integer(0),
             probKeepPerturbations
           )
         }))
@@ -79,7 +90,7 @@ explain.data.frame <-
       communication_id = uuid::UUIDgenerate()
 
       # Trigger first call and start anchors
-      initialize.explanation.request(backend_connection, communication_id, length(instance) - 1)
+      initialize.explanation.request(backend_connection, communication_id, length(instance))
 
       while (TRUE) {
         response <- await.server.response(backend_connection)
@@ -87,7 +98,6 @@ explain.data.frame <-
         if (response$status == "response") {
           # Server sends stop
           break
-
         }
 
         if (response$status == "eval_request") {
@@ -98,21 +108,20 @@ explain.data.frame <-
           samplesToEvaluate = response$samplesToEvaluate
 
           # Create pertubations for rule
-          # TODO move to samplesToEvaluate to parameter
           instancesDf = do.call(rbind, lapply(1:samplesToEvaluate, function(x) {
             perturbate(
               explainer$perturbator,
-              explainer$trainingsData,
+              trainData,
               bins,
               instance,
-              c(anchors, explainer$target),
+              anchors,
               probKeepPerturbations
             )
           }))
 
-          pred = predict_model(explainer$model, instancesDf, ...) #, type = o_type
+          pred = predict_model(explainer$model, instancesDf, ...)
           pred$data$truth = labels[i]
-          precision = performance_model(pred, measures = list(acc))[[1]] #FIXME
+          precision = performance_model(pred, measures = list(acc))[[1]]
 
           # TODO wouldn't it better to straight away only send the correctly predicted labels?
           matchingLabels = precision * samplesToEvaluate
@@ -169,7 +178,7 @@ explain.data.frame <-
           ridx = 1 + nrow(explanations)
           explanations[ridx, "model_type"] = "Classification" #explainer$model$task.desc$type
           explanations[ridx, "case"] = rownames(instance)
-          explanations[ridx, "label"] = labels[i]
+          explanations[ridx, "label"] = as.character(labels[i]) # TODO why doesn't factor "survive"?
           explanations[ridx, "label_prob"] = rules$precision
           explanations[ridx, "feature"] = colnames(instance)[as.numeric(j)]
           explanations[ridx, "feature_value"] = instance[, as.numeric(j)]
@@ -177,13 +186,11 @@ explain.data.frame <-
           explanations[ridx, "added_coverage"] = addedCoverage[[j]]
           explanations[ridx, "feature_desc"] = featuresText[[j]]
           explanations[ridx, "data"] = collapse(unlist(instance))
-          explanations[ridx, "prediction"] = prediction$data$response
           explanations[ridx, "precision"] = rules$precision
           explanations[ridx, "coverage"] = rules$coverage
         }
 
         rules = append(rules, list(response$anchorResult[[1]]))
-
       } else {
         stopf(
           "R_IllegalFormatException: Could not find field \"anchorResult\" in Server response"
