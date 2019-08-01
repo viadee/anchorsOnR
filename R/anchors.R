@@ -23,7 +23,7 @@
 #'
 #' @name anchors
 #' @export
-anchors <- function(x, model, perturbator = NULL , discX, target = NULL, ...) {
+anchors <- function(x, model, perturbator = NULL, bins = NULL, target = NULL, ...) {
   UseMethod('anchors', x)
 }
 

@@ -1,7 +1,6 @@
 #' Shutdown the anchors java server.
 #'
 #' Attempts to shutdown a running Anchors instance.
-
 #' @param control Object of class \code{anchors_control}. Must have a slot \code{connection} representing a socketConnection.
 #' @return this method will shutdown the socketConnection and return a nullified control object.
 #' @export

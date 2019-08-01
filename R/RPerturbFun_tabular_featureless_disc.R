@@ -16,11 +16,13 @@ perturbate.tabular.featurelessDisc <-
            anchors,
            probKeep,
            ...) {
+
     pertCols = setdiff(seq(1, ncol(dataset), 1), anchors)
 
     for (i in pertCols) {
       bin <- bins[[i]]
       # Check if discretization has been disabled
+      # We might be able to remove this check as line 35 works equally
       if (!is.null(bin$doDiscretize) && !bin$doDiscretize) {
         # Basically to featureless perturbation for this column
         if (as.logical(rbinom(1, size = 1, prob = probKeep))) {
@@ -29,10 +31,10 @@ perturbate.tabular.featurelessDisc <-
         next
       }
       # Check bin of instance
-      binNr = provideBin.numeric(instance[i], bin$cuts, bin$right)
+      providedBin = provideBin.numeric(instance[i], bin)
       binsNo = 1:(length(bins[[i]]$cuts) + 1)
 
-      instance[, i] = sample(c(binNr, binsNo[-binNr]), 1,
+      instance[, i] = sample(c(providedBin, binsNo[-providedBin]), 1,
                              p = c(probKeep, rep((1 - probKeep) / length(bin$cuts),
                                                  length(bin$cuts)
                              )))
