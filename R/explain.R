@@ -1,6 +1,6 @@
 #' Explain model predictions
 #'
-#' Once an explainer has been created using the [lime()] function it can be used
+#' Once an explainer has been created using the [anchors()] function it can be used
 #' to explain the result of the model on new observations. The `explain()`
 #' function takes new observation along with the explainer and returns a
 #' data.frame with prediction explanations, one observation per row. The
@@ -24,19 +24,21 @@
 #'
 #' @param feature_select The algorithm to use for selecting features. One of:
 #'
-#' - `"auto"`: If `n_features <= 6` use `"forward_selection"` else use `"highest_weights"`.
+#' - `"auto"`: If `n_features <= 6` use `"forward_selection"` else use
+#'   `"highest_weights"`.
 #' - `"none"`: Ignore `n_features` and use all features.
 #' - `"forward_selection"`: Add one feature at a time until `n_features` is
 #'   reached, based on quality of a ridge regression model.
-#' - `"highest_weights"`: Fit a ridge regression and select the `n_features` with
-#'   the highest absolute weight.
+#' - `"highest_weights"`: Fit a ridge regression and select the `n_features`
+#'   with the highest absolute weight.
 #' - `"lasso_path"`: Fit a lasso model and choose the `n_features` whose lars
 #'   path converge to zero the latest.
 #' - `"tree"` : Fit a tree to select `n_features` (which needs to be a power of
 #'   2). It requires last version of `XGBoost`.
 #'
 #'
-#' @param probKeepPerturbations probability to keep an instance's attribute value when producing perturbations
+#' @param probKeepPerturbations probability to keep an instance's attribute
+#' value when producing perturbations
 #'
 #' @param ... Parameters passed on to the `predict_model()` method
 #'
@@ -63,17 +65,19 @@
 #'
 #' @export
 #'
-explain <- function(x, explainer, labels = NULL, feature_select = 'auto', ...) {
-  UseMethod('explain', x)
+explain <- function(x, explainer, labels = NULL, feature_select = "auto", ...) {
+  UseMethod("explain", x)
 }
+
 model_type.explainer <- function(x) {
   model_type(x$model)
 }
+
 output_type <- function(x) {
   switch(
     model_type(x),
-    classification = 'prob',
-    regression = 'raw',
-    stop(model_type(x), ' models are not supported yet', call. = FALSE)
+    classification = "prob",
+    regression = "raw",
+    stop(model_type(x), " models are not supported yet", call. = FALSE)
   )
 }

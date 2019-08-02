@@ -30,7 +30,7 @@ shutdown <- function(control = NULL){
 #' @param startAnchors (Optional) A \code{logical} value indicating whether to try to start Anchors from R if no connection with Anchors is detected. This is only possible if \code{ip = "localhost"} or \code{ip = "127.0.0.1"}.  If an existing connection is detected, R does not start Anchors.
 #' @return this method will load it and return a socketConnection
 #' @export
-initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, startAnchors = TRUE) {
+initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, startAnchors = TRUE, explainer = NULL) {
 
   if(!is.character(ip) || length(ip) != 1L || is.na(ip) || !nzchar(ip))
     stop("`ip` must be a non-empty character string")
@@ -202,6 +202,16 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
   #}
   args <- c(args, "-port", port)
   #args <- c(args, "-ice_root", slashes_fixed_ice_root)
+
+  # args <- c(args, "-maxAnchorSize", explainer$maxAnchors)
+  # args <- c(args, "-beamSize", explainer$beams)
+  # args <- c(args, "-delta", explainer$delta)
+  # args <- c(args, "-epsilon", explainer$epsilon)
+  # args <- c(args, "-tau", explainer$tau)
+  # args <- c(args, "-tauDiscrepancy", explainer$tauDiscrepancy)
+  # args <- c(args, "-initSampleCount", explainer$initSamples)
+  # args <- c(args, "-allowSuboptimalSteps", tolower(as.character(explainer$allowSuboptimalSteps)))
+  # args <- c(args, "-batchSize", explainer$batchSize)
 
   #if(!is.na(log_dir)) args <- c(args, "-log_dir", log_dir)
   #if(!is.na(log_level)) args <- c(args, "-log_level", log_level)

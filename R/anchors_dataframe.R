@@ -8,69 +8,56 @@
 #' @name anchors
 #' @importFrom stats predict sd quantile density
 #' @export
-anchors.data.frame <-
-  function(x,
-           model,
-           perturbator = NULL,
-           bins = NULL,
-           target = NULL,
-           ...) {
-    explainer <- c(as.list(environment()), list(...))
+anchors.data.frame <- function(x, model, perturbator = NULL, bins = NULL,
+                               target = NULL, maxAnchors = NULL, beams = 2L,
+                               delta = 0.1, epsilon = 0.1, tau = 0.9,
+                               tauDiscrepancy = 0.05, initSamples = 1L,
+                               allowSuboptimalSteps = TRUE, batchSize = 100L,
+                               ...) {
 
-    # Set train data
-    explainer$trainingsData <- x
+  explainer <- c(as.list(environment()), list(...))
 
-    # Check target
-    if (!is.null(target)) {
-      explainer$target = target
-    } else if (inherits(model, "WrappedModel")) {
-      explainer$target = model$task.desc$target
-    }
-    if (!is.null(explainer$target) && !(explainer$target %in% names(x))) {
-      BBmisc::stopf("Cannot access specified target. Pleaser either provide no target, a valid one or a WrappedModel.")
-    }
+  # Set train data
+  explainer$trainingsData <- x
 
-    # Set bins/discretization
-    predictorCount <- length(explainer$trainingsData)
-    if (!is.null(explainer$target))
-      predictorCount = predictorCount - 1
-    if (is.null(bins)) {
-      bins <- create.empty.discretization(predictorCount)
-    }
-    explainer$bins <- validate.bins(bins, predictorCount)
-
-    if (is.null(perturbator))
-      perturbator <- makePerturbFun("tabular.featureless")
-    explainer$perturbator <- perturbator
-
-    # # Feature type per column
-    # explainer$feature_type <- setNames(sapply(x, function(f) {
-    #   if (is.integer(f)) {
-    #     if (length(unique(f)) == 1)
-    #       'constant'
-    #     else
-    #       'integer'
-    #   } else if (is.numeric(f)) {
-    #     if (length(unique(f)) == 1)
-    #       'constant'
-    #     else
-    #       'numeric'
-    #   } else if (is.character(f)) {
-    #     'character'
-    #   } else if (is.factor(f)) {
-    #     'factor'
-    #   } else if (is.logical(f)) {
-    #     'logical'
-    #   } else if (inherits(f, 'Date') || inherits(f, 'POSIXt')) {
-    #     'date_time'
-    #   } else {
-    #     stop('Unknown feature type', call. = FALSE)
-    #   }
-    # }), names(x))
-    # if (any(explainer$feature_type == 'constant')) {
-    #   warning('Data contains numeric columns with zero variance', call. = FALSE)
-    # }
-
-    structure(explainer,
-              class = c('data_frame_explainer', 'explainer', 'list'))
+  # Check target
+  if (!is.null(target)) {
+    explainer$target = target
+  } else if (inherits(model, "WrappedModel")) {
+    explainer$target = model$task.desc$target
   }
+  if (!is.null(explainer$target) && !(explainer$target %in% names(x))) {
+    BBmisc::stopf("Cannot access specified target. If no mlr model is to
+                    be explained, please provide the column name of the
+                    target variable.")
+  }
+
+  # Set bins/discretization
+  predictorCount <- length(explainer$trainingsData)
+  if (!is.null(explainer$target))
+    predictorCount = predictorCount - 1
+  if (is.null(bins)) {
+    bins <- create.empty.discretization(predictorCount)
+  }
+  explainer$bins <- validate.bins(bins, predictorCount)
+
+  if (is.null(perturbator))
+    perturbator <- makePerturbFun("tabular.featureless")
+  explainer$perturbator <- perturbator
+
+  if (is.null(maxAnchors))
+    maxAnchors = ncol(explainer$trainingsData)-1 # target cannot be anchor
+  if (maxAnchors>=ncol(explainer$trainingsData))
+    BBmisc::stopf("You cannot have more anchors than features.")
+  explainer$maxAnchors = maxAnchors
+  explainer$beams = beams
+  explainer$delta = delta
+  explainer$epsilon = epsilon
+  explainer$tau = tau
+  explainer$tauDiscrepancy = tauDiscrepancy
+  explainer$initSamples = initSamples
+  explainer$allowSuboptimalSteps = allowSuboptimalSteps
+  explainer$batchSize = batchSize
+
+  structure(explainer, class = c('data_frame_explainer', 'explainer', 'list'))
+}
