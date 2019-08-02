@@ -7,7 +7,6 @@ cache: packages
 os:
   - linux
   - osx
-  - windows
 
 jdk:
   - oraclejdk8
