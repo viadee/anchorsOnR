@@ -55,4 +55,5 @@ explanations = explain(toExplain, explainer)
 
 printExplanations(explainer, explanations)
 
+plotExplanations(explanations, colnames(diabetes)[-ncol(diabetes)])
 
