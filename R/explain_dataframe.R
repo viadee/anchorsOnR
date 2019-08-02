@@ -13,7 +13,6 @@ explain.data.frame <-
            explainer,
            labels = NULL,
            feature_select = 'auto',
-           probKeepPerturbations = 0.5,
            ...) {
     checkmate::assert_true(is.data_frame_explainer(explainer))
     m_type <- model_type(explainer)
@@ -82,7 +81,8 @@ explain.data.frame <-
             bins,
             instance,
             integer(0),
-            probKeepPerturbations
+            # Change change probability to
+            1
           )
         }))
 
@@ -115,7 +115,7 @@ explain.data.frame <-
               bins,
               instance,
               anchors,
-              probKeepPerturbations
+              0.5
             )
           }))
 
