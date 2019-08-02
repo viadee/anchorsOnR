@@ -1,0 +1,26 @@
+language: r
+warnings_are_errors: false
+sudo: required
+
+cache: packages
+
+os:
+  - linux
+  - osx
+  - windows
+
+jdk:
+  - oraclejdk8
+  - oraclejdk9
+  - openjdk8
+
+notifications:
+  email:
+    recipients:
+      - thorben.hellweg@viadee.de
+    on_success: change
+    on_failure: always
+
+test:
+  script:
+  - R CMD build . --no-build-vignettes --no-manual
