@@ -21,7 +21,7 @@ Depends:
 VignetteBuilder: knitr
 SystemRequirements: Java Runtime Environment (JRE)
 Suggests: 
-    testthat
+    testthat,
+    mlr,
+    h2o
 RoxygenNote: 6.1.1
-Imports: 
-    foreach
