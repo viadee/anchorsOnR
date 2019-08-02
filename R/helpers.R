@@ -26,7 +26,7 @@ validate.bins <- function(bins, length) {
       names(bin) %in% c("doDiscretize", "numeric", "classes", "cuts", "right")
     ))) > 0)
       stop("Invalid bin arguments")
-    if (!is.null(bin$doDiscretize) && bin$doDiscretize == T)
+    if (!is.null(bin$doDiscretize) && bin$doDiscretize == F)
       next
 
     if (!is.null(bin$numeric) && bin$numeric == T) {
