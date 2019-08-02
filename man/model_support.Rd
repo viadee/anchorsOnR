@@ -4,7 +4,7 @@
 \alias{model_support}
 \alias{predict_model}
 \alias{model_type}
-\title{Methods for extending limes model support}
+\title{Methods for extending anchors model support}
 \usage{
 predict_model(x, newdata, type, ...)
 

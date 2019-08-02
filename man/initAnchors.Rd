@@ -5,7 +5,7 @@
 \title{Initialize and Connect to anchors}
 \usage{
 initAnchors(ip = "localhost", port = 6666, name = NA_character_,
-  startAnchors = TRUE)
+  startAnchors = TRUE, explainer = NULL)
 }
 \arguments{
 \item{ip}{Object of class \code{character} representing the IP address of the server where Anchors is running.}

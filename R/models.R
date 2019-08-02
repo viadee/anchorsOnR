@@ -1,4 +1,4 @@
-#' Methods for extending limes model support
+#' Methods for extending anchors model support
 #'
 #' In order to have `anchors` support for your model of choice `anchors` needs to be
 #' able to get predictions from the model in a standardised way, and it needs to
