@@ -8,12 +8,11 @@ cleanupPackageNames = function(pkgs) {
 }
 
 create.empty.discretization <- function(featureCount) {
-  bins = list()
-  for (feature in 1:featureCount) {
+  bins = lapply(seq(featureCount), function(feature){
     bin <- list()
     bin$doDiscretize = F
-    bins[[feature]] <- bin
-  }
+    return(bin)
+  })
   return(bins)
 }
 
