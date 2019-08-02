@@ -20,7 +20,6 @@ rpart.plot::rpart.plot(getLearnerModel(model))
 bins = list()
 r = sapply(1:(ncol(iris) - 1), function(x) {
   bin <<- list()
-  bin$numeric <<- T
   cuts = arules::discretize(iris[, x], onlycuts = T)
   bin$cuts <<- cuts[2:(length(cuts) - 1)]
   bin$right <<- F

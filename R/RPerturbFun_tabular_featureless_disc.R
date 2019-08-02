@@ -31,7 +31,7 @@ perturbate.tabular.featurelessDisc <-
         next
       }
       # Check bin of instance
-      providedBin = provideBin.numeric(instance[i], bin)
+      providedBin = provideBin(instance[i], bin)
       binsNo = 1:(length(bins[[i]]$cuts) + 1)
 
       instance[, i] = sample(c(providedBin, binsNo[-providedBin]), 1,

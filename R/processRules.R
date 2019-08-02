@@ -22,12 +22,12 @@ getAddedCoverage <- function(candidates, feature, instance, dataset){
 getFeatureText <- function(candidates, feature, instance, dataset, bins){
   bin <- bins[[feature+1]]
   if (candidates$addedFeature == feature){
-    providedBin = provideBin.numeric(instance[feature+1], bin)
+    providedBin = provideBin(instance[feature+1], bin)
     if (!is.null(bin$doDiscretize) && !bin$doDiscretize) {
       featureDesc = paste(colnames(dataset)[feature+1], "=", providedBin)
     }
     else {
-      featureDesc = paste(colnames(dataset)[feature+1], "IN", buildDescription.numeric(providedBin, bin$cuts, bin$right))
+      featureDesc = paste(colnames(dataset)[feature+1], "IN", buildDescription(providedBin, bin$cuts, bin$right))
     }
     names(featureDesc) = feature+1
     return(featureDesc)

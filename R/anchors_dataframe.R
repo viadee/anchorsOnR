@@ -37,8 +37,7 @@ anchors.data.frame <-
     if (is.null(bins)) {
       bins <- create.empty.discretization(predictorCount)
     }
-    validate.bins(bins, predictorCount)
-    explainer$bins <- bins
+    explainer$bins <- validate.bins(bins, predictorCount)
 
     if (is.null(perturbator))
       perturbator <- makePerturbFun("tabular.featureless")

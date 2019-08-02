@@ -10,7 +10,7 @@ calculate.coverage <-
     colnames(reducedPerturbations) = features
 
     for (i in 1:ncol(reducedPerturbations)) {
-      featureVec[i] = provideBin.numeric(featureVec[i], bins[[features[i]]])
+      featureVec[i] = provideBin(featureVec[i], bins[[features[i]]])
     }
 
     matchingRows = nrow(suppressMessages(plyr::match_df(reducedPerturbations, featureVec)))

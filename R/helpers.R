@@ -21,7 +21,8 @@ validate.bins <- function(bins, length) {
   checkmate::expect_list(bins)
   if (length(bins) != length)
     stop("There needs to be one bin defined for each element")
-  for (bin in bins) {
+  for (i in 1:length(bins)) {
+    bin <- bins[[i]]
     if (length(which(!(
       names(bin) %in% c("doDiscretize", "numeric", "classes", "cuts", "right")
     ))) > 0)
@@ -29,7 +30,21 @@ validate.bins <- function(bins, length) {
     if (!is.null(bin$doDiscretize) && bin$doDiscretize == F)
       next
 
-    if (!is.null(bin$numeric) && bin$numeric == T) {
+    if (is.null(bin$numeric)) {
+      if ((is.null(bin$cuts) && is.null(bin$classes)) ||
+          (!is.null(bin$cuts) && !is.null(bin$classes)))
+        stop("Either classes or cuts have to be provided")
+
+      if (!is.null(bin$cuts))
+        bin$numeric <- T
+      if (!is.null(bin$classes))
+        bin$numeric <- F
+    }
+
+    if (is.null(bin$right))
+      bin$right <- F
+
+    if (bin$numeric == T) {
       checkmate::assert_vector(bin$cuts)
       checkmate::assert_null(bin$classes)
     } else {
@@ -37,11 +52,15 @@ validate.bins <- function(bins, length) {
       checkmate::assert_null(bin$cuts)
       checkmate::assert_null(bin$right)
     }
+
+    bins[[i]] <- bin
   }
+
+  return(bins)
 }
 
 
-provideBin.numeric <- function(value, bin) {
+provideBin <- function(value, bin) {
   # If discretization is disabled return value
   if (!is.null(bin$doDiscretize) && !bin$doDiscretize) {
     return(value)
@@ -69,45 +88,68 @@ provideBin.numeric <- function(value, bin) {
 }
 
 
-plotExplanations <- function(explanations, featureNames){
-
-
-  d = matrix(rep(0,length(featureNames)*length(unique(explanations[,"case"]))), ncol=length(featureNames))
+plotExplanations <- function(explanations, featureNames) {
+  d = matrix(rep(0, length(featureNames) * length(unique(explanations[, "case"]))), ncol =
+               length(featureNames))
 
   colnames(d) = featureNames
 
-  rownames(d) = unique(explanations[,"case"])
+  rownames(d) = unique(explanations[, "case"])
 
-  bins=as.data.frame(d)
-  sapply(colnames(d), function(featureName){
-    cases = unique(explanations[,"case"])
-    sapply(cases, function(case, featureName){
-      if(featureName %in% explanations[explanations[,"case"]==case, "feature"]){
-        d[case, featureName]<<- explanations[explanations[,"case"]==case & explanations[,"feature"]==featureName, "feature_weight"]
-        bins[case, featureName]<<- explanations[explanations[,"case"]==case & explanations[,"feature"]==featureName, "feature_desc"]
+  bins = as.data.frame(d)
+  sapply(colnames(d), function(featureName) {
+    cases = unique(explanations[, "case"])
+    sapply(cases, function(case, featureName) {
+      if (featureName %in% explanations[explanations[, "case"] == case, "feature"]) {
+        d[case, featureName] <<-
+          explanations[explanations[, "case"] == case &
+                         explanations[, "feature"] == featureName, "feature_weight"]
+        bins[case, featureName] <<-
+          explanations[explanations[, "case"] == case &
+                         explanations[, "feature"] == featureName, "feature_desc"]
       }
     }, featureName)
   })
 
-  par(mfrow=c(nrow(d), 1), mar=c(5, 4, 4, 7) + 0.1)
-  colors=brewer.pal(n = 5, name = 'Blues')
-  cuts=seq(0.2,1,0.2)
-  r=sapply(1:nrow(d), function(i){
-    xlab=""
-    if(i==nrow(d)){
-      xlab="Features"
+  par(mfrow = c(nrow(d), 1), mar = c(5, 4, 4, 7) + 0.1)
+  colors = brewer.pal(n = 5, name = 'Blues')
+  cuts = seq(0.2, 1, 0.2)
+  r = sapply(1:nrow(d), function(i) {
+    xlab = ""
+    if (i == nrow(d)) {
+      xlab = "Features"
     }
-    colorBorders=sapply(1:length(d[i,]), function(x) {
-      return(min(which(cuts>=d[i,x])))
-    }
-    )
-    p<-barplot(ifelse(d[i,]==0, NA, d[i,]), axes=F, ylab=paste("Instance",i), xlab=xlab,  names.arg=colnames(d), ylim=c(0,1), col=colors[colorBorders])
-    text(p, 0, ifelse(bins[i,]==0, "", substr(bins[i,], start=nchar(colnames(d))+1, stop=100000)), cex=0.7, pos=3)
+    colorBorders = sapply(1:length(d[i, ]), function(x) {
+      return(min(which(cuts >= d[i, x])))
+    })
+    p <-
+      barplot(
+        ifelse(d[i, ] == 0, NA, d[i, ]),
+        axes = F,
+        ylab = paste("Instance", i),
+        xlab = xlab,
+        names.arg = colnames(d),
+        ylim = c(0, 1),
+        col = colors[colorBorders]
+      )
+    text(p,
+         0,
+         ifelse(bins[i, ] == 0, "", substr(
+           bins[i, ], start = nchar(colnames(d)) + 1, stop = 100000
+         )),
+         cex = 0.7,
+         pos = 3)
   })
-  legend("bottomright",legend=seq(0.2,1,0.2), fill=brewer.pal(n = 5, name = 'Blues'), xpd=TRUE, inset=c(-0.1,0))
+  legend(
+    "bottomright",
+    legend = seq(0.2, 1, 0.2),
+    fill = brewer.pal(n = 5, name = 'Blues'),
+    xpd = TRUE,
+    inset = c(-0.1, 0)
+  )
 }
 
-buildDescription.numeric <- function(bin, cuts, right) {
+buildDescription <- function(bin, cuts, right) {
   desc = ""
   if (bin == 1) {
     if (right) {
