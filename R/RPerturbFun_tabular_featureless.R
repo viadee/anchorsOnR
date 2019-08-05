@@ -38,10 +38,8 @@ perturbate.tabular.featureless <-
     if (is.null(bin$doDiscretize) || bin$doDiscretize) {
         for (i in anchors) {
           relevantBin=provideBin(instance[,i], bins[[i]])
-          matchingRows=sapply(dataset[,i], provideBin, bins[[i]])
-          matchingRows= which(matchingRows==relevantBin)
-          matchingRows=dataset[matchingRows,]
-          instance=perturbate.tabular.exchangeFeatureValue(matchingRows, instance, i, probKeep)
+          matchingRows=sapply(dataset[,i], checkBin, bins[[i]], relevantBin)
+          instance=perturbate.tabular.exchangeFeatureValue(dataset[matchingRows,], instance, i, probKeep)
         }
     }
 

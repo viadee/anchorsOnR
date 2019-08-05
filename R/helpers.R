@@ -86,6 +86,43 @@ provideBin <- function(value, bin) {
   }
 }
 
+checkBin <- function(value, bin, binIndex){
+  if (!bin$numeric) {
+
+    if (value %in% bin[[binIndex]]){
+     return(T)
+    }else{
+      return(F)
+    }
+  }
+  else {
+
+    if(binIndex==1){
+      if((bin$right && value <= bin$cuts[binIndex])||(!bin$right && value < bin$cuts[binIndex])){
+        return(T)
+      }else{
+        return(F)
+      }
+    }
+
+    if(binIndex>length(bin$cuts)){
+      if((bin$right && value > bin$cuts[binIndex-1])||(!bin$right && value >= bin$cuts[binIndex-1])){
+        return(T)
+      }else{
+        return(F)
+      }
+    }
+
+    if((bin$right && value > bin$cuts[binIndex-1] && value <= bin$cuts[binIndex]) ||
+      (!bin$right &&
+         value >= bin$cuts[binIndex-1] && value < bin$cuts[binIndex])){
+           return (T)
+         }else{
+           return(F)
+         }
+  }
+}
+
 
 plotExplanations <- function(explanations, featureNames) {
   d = matrix(rep(0, length(featureNames) * length(unique(explanations[, "case"]))), ncol =
