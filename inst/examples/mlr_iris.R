@@ -17,23 +17,24 @@ rpart.plot::rpart.plot(getLearnerModel(model))
 
 # Prepare bins:
 # a list of bins per column, the nth-entry provides the bins of the nth-column
-# Per bin: define whether numeric (for now: only works with numeric), the cuts
+# Per bin: define whether numeric, the cuts
 # of the bins, and whether the right or the left border of a bin is included
-bins = lapply(1:(ncol(iris) - 1), function(x) {
-  bin <- list()
-  cuts = arules::discretize(iris[, x], onlycuts = T)
-  bin$cuts <- cuts[2:(length(cuts) - 1)]
-  bin$right <- F
-  return(bin)
+bins=buildBins(columnIndex=1, arules::discretize(iris[, 1], onlycuts = T), currentBins = NULL)
+r=lapply(2:(ncol(iris) - 1), function(i) {
+  bins<<-buildBins(columnIndex=i, arules::discretize(iris[, i], onlycuts = T), currentBins = bins)
 })
 
 # Prepare explainer to explain model with anchors
 explainer = anchors(iris, model, bins = bins, target = "Species")
 
 # Produce explanations for selected instances
-toExplain = iris[sample(1:nrow(iris), 20),]
-explanations = explain(toExplain, explainer)
+toExplain = iris[1,]
+
+explanations = explain(toExplain, explainer, labels = predict(model, newdata = toExplain)$data$response, probKeepPerturbations=0)
+
 
 # print explanations
 printExplanations(explainer, explanations)
+
+plotExplanations(explanations)
 
