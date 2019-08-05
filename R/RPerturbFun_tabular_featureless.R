@@ -35,13 +35,15 @@ perturbate.tabular.featureless <-
     }
 
     # Perturbate anchor-values within the respective bin (only if bins exist - discretizatin disabled?)
-    if (is.null(bin$doDiscretize) || bin$doDiscretize) {
         for (i in anchors) {
+
+          if (is.null(bins[[i]]$doDiscretize) || bins[[i]]$doDiscretize) {
           relevantBin=provideBin(instance[,i], bins[[i]])
           matchingRows=sapply(dataset[,i], checkBin, bins[[i]], relevantBin)
           instance=perturbate.tabular.exchangeFeatureValue(dataset[matchingRows,], instance, i, probKeep)
+          }
         }
-    }
+
 
     return(instance)
   }

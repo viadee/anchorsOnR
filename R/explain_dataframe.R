@@ -9,7 +9,7 @@
 #' @importFrom stats dist
 #' @export
 explain.data.frame <- function(x, explainer, labels = NULL,
-                               feature_select = 'auto', ...) {
+                               feature_select = 'auto', probKeep=0.5, ...) {
 
   checkmate::assert_true(is.data_frame_explainer(explainer))
   m_type <- model_type(explainer)
@@ -46,6 +46,7 @@ explain.data.frame <- function(x, explainer, labels = NULL,
     "feature_weight",
     "added_coverage",
     "feature_desc",
+    "feature_desc_short",
     "data",
     "precision"
   )
@@ -78,10 +79,10 @@ explain.data.frame <- function(x, explainer, labels = NULL,
           bins,
           instance,
           integer(0),
-          # Change change probability to
-          1
+          probKeep
         )
       }))
+
 
     # set meta data for IPC
     communication_id = uuid::UUIDgenerate()
@@ -112,7 +113,7 @@ explain.data.frame <- function(x, explainer, labels = NULL,
             bins,
             instance,
             anchors,
-            0.5
+            probKeep
           )
         }))
 
@@ -171,6 +172,26 @@ explain.data.frame <- function(x, explainer, labels = NULL,
         bins = explainer$bins
       )
 
+      featuresText = sapply(
+        rules$canonicalFeatures,
+        getFeatureText,
+        candidates = rules,
+        instance = instance,
+        dataset = explainer$trainingsData,
+        bins = explainer$bins,
+        short=F
+      )
+
+      featuresTextShort = sapply(
+        rules$canonicalFeatures,
+        getFeatureText,
+        candidates = rules,
+        instance = instance,
+        dataset = explainer$trainingsData,
+        bins = explainer$bins,
+        short=T
+      )
+
       for (j in names(featuresText)) {
         ridx = 1 + nrow(explanations)
         explanations[ridx, "model_type"] = "Classification" #explainer$model$task.desc$type
@@ -182,6 +203,7 @@ explain.data.frame <- function(x, explainer, labels = NULL,
         explanations[ridx, "feature_weight"] = featuresWeight[[j]]
         explanations[ridx, "added_coverage"] = addedCoverage[[j]]
         explanations[ridx, "feature_desc"] = featuresText[[j]]
+        explanations[ridx, "feature_desc_short"] = featuresTextShort[[j]]
         explanations[ridx, "data"] = collapse(unlist(instance))
         explanations[ridx, "precision"] = rules$precision
         explanations[ridx, "coverage"] = rules$coverage
