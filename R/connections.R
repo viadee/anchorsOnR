@@ -55,10 +55,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
     if (ip == "localhost" || ip == "127.0.0.1"){
       message("\nAnchors is not running yet, starting it now...\n")
       stdout <- .anchors.getTmpFile("stdout")
-      .anchors.startJar(ip = ip, port = port, name = name,
-                        ice_root = tempdir(), stdout = stdout,
-                        bind_to_localhost = FALSE, log_dir = NA,
-                        log_level = NA, context_path = NA)
+      .anchors.startJar(ip = ip, port = port, name = name, stdout = stdout)
 
       message("Starting Anchors JVM and connecting: ")
       Sys.sleep(1L)
@@ -125,15 +122,11 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
 
 .anchors.startJar <- function(ip = "localhost", port = NULL, name = NULL, nthreads = -1,
                               max_memory = NULL, min_memory = NULL,
-                              enable_assertions = TRUE, forceDL = FALSE, extra_classpath = NULL,
-                              ice_root, stdout, log_dir, log_level, context_path, jvm_custom_args = NULL,
-                              bind_to_localhost) {
+                              forceDL = FALSE, extra_classpath = NULL,
+                              stdout) {
 
   command <- .anchors.checkJava()
 
-  if (missing(ice_root)) {
-    stop("`ice_root` must be specified for .anchors.startJar")
-  }
 
   # Note: Logging to stdout and stderr in Windows only works for R version 3.0.2 or later!
   stderr <- .anchors.getTmpFile("stderr")
@@ -167,12 +160,6 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
             "http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html")
     # Set default max_memory to be 1g for 32-bit JVM.
     if(is.null(max_memory)) max_memory = "1g"
-  }
-
-  if (.Platform$OS.type == "windows") {
-    slashes_fixed_ice_root = gsub("\\\\", "/", ice_root)
-  }  else {
-    slashes_fixed_ice_root = ice_root
   }
 
   # Compose args
