@@ -1,6 +1,7 @@
+[![Build Status](https://travis-ci.org/viadee/anchorsOnR.svg?branch=master)](https://travis-ci.org/viadee/anchorsOnR)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
-# anchorsOnR 
+# anchorsOnR  
 
 This package implements the Anchors XAI algorithm as proposed by Marco Tulio Ribeiro (2018). The original paper *"Anchors: High-Precision Model-Agnostic Explanations"* can be found [*here*](https://homes.cs.washington.edu/~marcotcr/aaai18.pdf). It provides a short characterization of anchors, which reads as follows: 
 
