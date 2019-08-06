@@ -80,9 +80,8 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
   if (is.null(con)){
     stop("Anchors failed to start, stopping execution.")
   }
-  message("Successfully connected to anchorj!\n\n")
+  message("Successfully connected to anchorj!\n")
   .anchors.jar.env$port <- port #Ensure right port is called when quitting R
-  message("\n")
 
   return(con)
 }
@@ -204,15 +203,15 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
   args <- c(args, "-port", port)
   #args <- c(args, "-ice_root", slashes_fixed_ice_root)
 
-  # args <- c(args, "-maxAnchorSize", explainer$maxAnchors)
-  # args <- c(args, "-beamSize", explainer$beams)
-  # args <- c(args, "-delta", explainer$delta)
-  # args <- c(args, "-epsilon", explainer$epsilon)
-  # args <- c(args, "-tau", explainer$tau)
-  # args <- c(args, "-tauDiscrepancy", explainer$tauDiscrepancy)
-  # args <- c(args, "-initSampleCount", explainer$initSamples)
-  # args <- c(args, "-allowSuboptimalSteps", tolower(as.character(explainer$allowSuboptimalSteps)))
-  # args <- c(args, "-batchSize", explainer$batchSize)
+  args <- c(args, "-maxAnchorSize", explainer$maxAnchors)
+  args <- c(args, "-beamSize", explainer$beams)
+  args <- c(args, "-delta", explainer$delta)
+  args <- c(args, "-epsilon", explainer$epsilon)
+  args <- c(args, "-tau", explainer$tau)
+  args <- c(args, "-tauDiscrepancy", explainer$tauDiscrepancy)
+  args <- c(args, "-initSampleCount", explainer$initSamples)
+  args <- c(args, "-allowSuboptimalSteps", tolower(as.character(explainer$allowSuboptimalSteps)))
+  args <- c(args, "-batchSize", explainer$batchSize)
 
   #if(!is.na(log_dir)) args <- c(args, "-log_dir", log_dir)
   #if(!is.na(log_level)) args <- c(args, "-log_level", log_level)
@@ -221,10 +220,9 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
   #if(nthreads > 0L) args <- c(args, "-nthreads", nthreads)
   #if(!is.null(license)) args <- c(args, "-license", license)
 
-   message("\n")
-   message(        "Note:  In case of errors look at the following log files:\n")
-   message(sprintf("    %s\n", stdout))
-   message(sprintf("    %s\n", stderr))
+   message(        "Note:  In case of errors look at the following log files:")
+   message(sprintf("    %s", stdout))
+   message(sprintf("    %s", stderr))
    message("\n")
 
   # Print a java -version to the console
