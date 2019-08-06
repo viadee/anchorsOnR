@@ -14,11 +14,3 @@ getPerturbFunProperties.PerturbFun = function(perturbFun) {
 getPerturbFunProperties.character = function(perturbFun) {
   getPerturbFunProperties(checkLearner(perturbFun))
 }
-
-
-listPerturbFunProperties = function (type = "any")
-{
-  all.props = c(listPerturbTypes(), "any")
-  checkmate::assertSubset(type, all.props)
-  anchors$perturbfun.properties[[type]]
-}
