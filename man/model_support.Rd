@@ -50,17 +50,3 @@ potentially a `model_type()` method (if the latter is omitted the model
 should be wrapped in [as_classifier()]/[as_regressor()], everytime it is used in [anchors()]).
 }
 
-\examples{
-# Example of adding support for lda models (already available in anchors)
-predict_model.lda <- function(x, newdata, type, ...) {
-  res <- predict(x, newdata = newdata, ...)
-  switch(
-    type,
-    raw = data.frame(Response = res$class, stringsAsFactors = FALSE),
-    prob = as.data.frame(res$posterior, check.names = FALSE)
-  )
-}
-
-model_type.lda <- function(x, ...) 'classification'
-
-}

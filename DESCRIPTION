@@ -16,12 +16,12 @@ Depends:
     jsonlite,
     BBmisc,
     uuid,
-    arules,
     magrittr
 VignetteBuilder: knitr
 SystemRequirements: Java Runtime Environment (JRE)
 Suggests: 
     testthat,
     mlr,
-    h2o
+    h2o,
+    knitr
 RoxygenNote: 6.1.1

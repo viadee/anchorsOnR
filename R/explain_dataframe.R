@@ -5,11 +5,9 @@
 #' @rdname explain
 #' @name explain
 #'
-#' @importFrom gower gower_dist
-#' @importFrom stats dist
 #' @export
 explain.data.frame <- function(x, explainer, labels = NULL,
-                               feature_select = 'auto', probKeep=0.5, ...) {
+                               feature_select = 'auto', p=0.5, ...) {
 
   checkmate::assert_true(is.data_frame_explainer(explainer))
   m_type <- model_type(explainer)
@@ -62,7 +60,6 @@ explain.data.frame <- function(x, explainer, labels = NULL,
 
   message("Explaining ", nrow(x), " observations. This may take a while.")
 
-
   for (i in 1:nrow(x)) {
     message("[Explaining] Instance ", i, ": ", appendLF = FALSE)
 
@@ -72,16 +69,8 @@ explain.data.frame <- function(x, explainer, labels = NULL,
     # Featureless perturbations that are required to obtain coverage of a rule
     coverage_perturbations <-
       do.call(rbind, lapply(1:1000, function(x) {
-        perturbate(
-          makePerturbFun("tabular.featurelessDisc"),
-          trainData,
-          bins,
-          instance,
-          integer(0),
-          probKeep
-        )
+        perturbate(perturbTabularDisc, trainData, bins, instance, integer(0), p)
       }))
-
 
     # set meta data for IPC
     communication_id = uuid::UUIDgenerate()
@@ -106,13 +95,11 @@ explain.data.frame <- function(x, explainer, labels = NULL,
 
         # Create pertubations for rule
         instancesDf = do.call(rbind, lapply(1:samplesToEvaluate, function(x) {
-          perturbate(
-            explainer$perturbator,
-            trainData,
+          perturbate(explainer$perturbator, trainData,
             bins,
             instance,
             anchors,
-            probKeep
+            p
           )
         }))
 

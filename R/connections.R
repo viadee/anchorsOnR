@@ -55,10 +55,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
     if (ip == "localhost" || ip == "127.0.0.1"){
       message("\nAnchors is not running yet, starting it now...\n")
       stdout <- .anchors.getTmpFile("stdout")
-      .anchors.startJar(ip = ip, port = port, name = name,
-                        ice_root = tempdir(), stdout = stdout,
-                        bind_to_localhost = FALSE, log_dir = NA,
-                        log_level = NA, context_path = NA)
+      .anchors.startJar(ip = ip, port = port, name = name, stdout = stdout)
 
       message("Starting Anchors JVM and connecting: ")
       Sys.sleep(1L)
@@ -98,7 +95,6 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
   rcurl_package_is_installed = length(find.package("RCurl", quiet = TRUE)) > 0L
   if(!rcurl_package_is_installed) {
     if(.Platform$OS.type == "unix") {
-      # packageStartupMessage("Checking libcurl version...")
       curl_path <- Sys.which("curl-config")
       if(!nzchar(curl_path[[1L]]) || system2(curl_path, args = "--version") != 0L)
         stop("libcurl not found. Please install libcurl\n",
@@ -126,15 +122,11 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
 
 .anchors.startJar <- function(ip = "localhost", port = NULL, name = NULL, nthreads = -1,
                               max_memory = NULL, min_memory = NULL,
-                              enable_assertions = TRUE, forceDL = FALSE, extra_classpath = NULL,
-                              ice_root, stdout, log_dir, log_level, context_path, jvm_custom_args = NULL,
-                              bind_to_localhost) {
+                              forceDL = FALSE, extra_classpath = NULL,
+                              stdout) {
 
   command <- .anchors.checkJava()
 
-  if (missing(ice_root)) {
-    stop("`ice_root` must be specified for .anchors.startJar")
-  }
 
   # Note: Logging to stdout and stderr in Windows only works for R version 3.0.2 or later!
   stderr <- .anchors.getTmpFile("stderr")
@@ -170,12 +162,6 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
     if(is.null(max_memory)) max_memory = "1g"
   }
 
-  if (.Platform$OS.type == "windows") {
-    slashes_fixed_ice_root = gsub("\\\\", "/", ice_root)
-  }  else {
-    slashes_fixed_ice_root = ice_root
-  }
-
   # Compose args
   mem_args <- c()
   if(!is.null(min_memory)) mem_args <- c(mem_args, paste0("-Xms", min_memory))
@@ -188,20 +174,9 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
   if(is.na(name)) name <- paste0("Anchors_started_from_R_", gsub("\\s", "_", Sys.info()["user"]),"_",ltrs,nums)
   .anchors.jar.env$name <- name
 
-#  if(enable_assertions) args <- c(args, "-ea")
-#  if(!is.null(jvm_custom_args)) args <- c(args,jvm_custom_args)
-
   class_path <- paste0(c(jar_file, extra_classpath), collapse=.Platform$path.sep)
- # args <- c(args, "-cp", class_path, "water.AnchorsApp")
- # args <- c(args, "-cp", class_path)
   args <- c(args, "-jar", jar_file)
-  #args <- c(args, "-name", name)
-  #args <- c(args, "-ip", ip)
-  #if (bind_to_localhost) {
-  #  args <- c(args, "-web_ip", ip)
-  #}
   args <- c(args, "-port", port)
-  #args <- c(args, "-ice_root", slashes_fixed_ice_root)
 
   args <- c(args, "-maxAnchorSize", explainer$maxAnchors)
   args <- c(args, "-beamSize", explainer$beams)
@@ -212,13 +187,6 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
   args <- c(args, "-initSampleCount", explainer$initSamples)
   args <- c(args, "-allowSuboptimalSteps", tolower(as.character(explainer$allowSuboptimalSteps)))
   args <- c(args, "-batchSize", explainer$batchSize)
-
-  #if(!is.na(log_dir)) args <- c(args, "-log_dir", log_dir)
-  #if(!is.na(log_level)) args <- c(args, "-log_level", log_level)
-  #if(!is.na(context_path)) args <- c(args, "-context_path", context_path)
-
-  #if(nthreads > 0L) args <- c(args, "-nthreads", nthreads)
-  #if(!is.null(license)) args <- c(args, "-license", license)
 
    message(        "Note:  In case of errors look at the following log files:")
    message(sprintf("    %s", stdout))
@@ -286,7 +254,6 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
 
 # This function returns a string to the valid path on the local filesystem of the anchors.jar file,
 # or it calls stop() and does not return.
-#
 # It will download a jar file if it needs to.
 .anchors.downloadJar <- function(overwrite = FALSE) {
   if(!is.logical(overwrite) || length(overwrite) != 1L || is.na(overwrite)) stop("`overwrite` must be TRUE or FALSE")

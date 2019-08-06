@@ -1,15 +1,21 @@
+[![Build Status](https://travis-ci.org/viadee/anchorsOnR.svg?branch=master)](https://travis-ci.org/viadee/anchorsOnR)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
-# anchorsOnR 
+# anchorsOnR  
 
-This project provides an R interface to the java implementation of the Anchors explanation algorithm for machine learning models. It enables High-Precision Model-Agnostic Explanations in a human readable form. 
+This package implements the Anchors XAI algorithm as proposed by Marco Tulio Ribeiro (2018). The original paper *"Anchors: High-Precision Model-Agnostic Explanations"* can be found [*here*](https://homes.cs.washington.edu/~marcotcr/aaai18.pdf). It provides a short characterization of anchors, which reads as follows: 
 
-The initial proposal "Anchors: High-Precision Model-Agnostic Explanations" by Marco Tulio Ribeiro (2018) can be found
-[*here*](https://homes.cs.washington.edu/~marcotcr/aaai18.pdf). The java implementation of the anchors algorithm, which is interfaced by this package is provided [*here*](https://github.com/viadee/javaAnchorExplainer).
+> An anchor explanation is a rule that sufficiently “anchors” the prediction locally – such that changes to the rest of the feature values of the instance do not matter. In other words, for instances on which the anchor holds, the prediction is (almost) always the same.
+
+> The anchor method is able to explain any black box classifier, with two or more classes. All we require is that the classifier implements a function that takes [a data instance] and outputs [an integer] prediction.
+
+Thus, anchors are highly precise explanations in form of human readable IF-THEN rules, that describe which values caused the model's outcome for one specific instance. They prodive a clear coverage, i.e., state exactly to which other instances the apply. 
+
+This R package interfaces the [*anchorJ Java Implementation*](https://github.com/viadee/javaAnchorExplainer).
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
 ### Prerequisites
 
@@ -21,7 +27,7 @@ If you want to fiddle around with the anchorsOnR source code, make sure to have 
 install.packages("devtools")
 ```
 
-### Installing
+### Installing anchorsOnR
 
 Now, install the *anchors* package directly from github as follows:
 ```{r}
@@ -29,61 +35,95 @@ devtools::install_github("viadee/anchorsOnR")
 ```
 The following dependencies are required to use this package (unmodified, distributed and maintained by their respective authors through the established channels such as CRAN): 
 * checkmate (BSD 3 clause)
-* rjson (GPL-2)
 * jsonlite (MIT)
 * BBmisc (BSD 3 clause)
 * uuid (MIT)
-* arules (GPL-3)
 * magrittr (MIT)
 
 ### Using the Algorithm
-The anchors API resembles the API of the R package [lime](https://github.com/thomasp85/lime).
-The best way to illustrate the process of model-agnostic explanation in *anchors* is by example. Assume we aim to understand predictions made on the iris dataset. Towards that goal, we first train an *mlr* learner as a black box model to explain:
+
+The anchors API was designed in the style of the [lime R package](https://github.com/thomasp85/lime). The best way to illustrate the process of model-agnostic explanation in *anchors* is by example. Assume we aim to understand predictions made on the iris dataset. 
+
+#### Obtaining a Model
+
+Towards that goal, we first train an *mlr* learner as a black box model to explain
 
 ```{r}
-library(mlr)
 library(anchors)
+library(mlr)
 
 data(iris)
-train = iris
 
 # our goal is to predict the species
-task = makeClassifTask(data = train, target = "Species", id = "iris")
-
-# set up a learner
-lrn.rpart = makeLearner("classif.rpart")
-
+task = makeClassifTask(data = iris, target = "Species", id = "iris")
+# setting up a learner
+lrn = makeLearner("classif.rpart")
 # train the learner on the training set
-model = train(learner = lrn.rpart, task = task)
+model = train(learner = lrn, task = task)
 ```
-In anchors, explanations are derived by feature value perturbation (i.e. systematically changing model feature values to see which changes are necessary to flip the model's prediction). 
-As we want explain a tabular instance (an observation in our dataset iris), we choose the default tabular perturbation function.
 
-```{r}
-perturbator = makePerturbFun("tabular.featureless")
-```
-Finally, we create an anchors explainer and apply it to a case to be explained:
-```{r}
-explainer = anchors(train, model, perturbator)
+The created decision tree can be used to compare and validate the algorithm's results, since it can be easily visualized (as the approach is *model agnostic* any model could be explained, including such that are not inherently visualizable).
 
-explanations = explain(train[52,], explainer)
+![Iris decision tree visualized](iris_decision_tree.png)
+
+#### Calling anchorsOnR
+
+Having created a model whose behavior is to be explained, we can obtain the explanations by first creating an *explainer* and using it on a specific instance (or multiple instances):
+```{r}
+explainer = anchors(iris, model, target = "Species")
+
+explanations = explain(iris[100,], explainer)
 ```
-The explain function starts and shuts down a background JVM in which the anchor server is tasked with determining the anchors in your dataset.
-After the explanations are derived from the model, one can visualize them in rule form or as a heatmap-like graph.
+The explain function spins up and eventually closes a background JVM in which the anchor server is tasked with determining the anchors in your dataset.
+
+The explanation can be printed and looks similar to the following output:
 ```{r}
 printExplanations(explainer, explanations)
-#> ====Explained Instance  52 ====
-#> Sepal.Length = 6.4
-#> Sepal.Width = 3.2
-#> Petal.Length = 4.5
-#> Petal.Width = 1.5
-#> WITH LABEL Species = 'versicolor'
-#> ====Result====
-#> IF Petal.Length IN INLC RANGE [2.63,4.9) (ADDED PRECISION: 0.810945273631841, ADDED COVERAGE: -0.411)
-#> THEN PREDICT '2'
-#> WITH PRECISION 0.810945273631841 AND COVERAGE 0.589
+
+# ====Explained Instance 100 ====
+# Sepal.Length = 5.7
+# Sepal.Width = 2.8
+# Petal.Length = 4.1
+# Petal.Width = 1.3
+# WITH LABEL  = 'versicolor'
+# ====Result====
+# IF Petal.Length = 4.1 (ADDED PRECISION: 0.1736, ADDED COVERAGE: -0.26) AND
+# Petal.Width = 1.3 (ADDED PRECISION: 0.8263, ADDED COVERAGE: -0.458)
+# THEN PREDICT 'versicolor'
+# WITH PRECISION 1 AND COVERAGE 0.282
 ```
-Here it is clear, why the method is called Anchors. The result is a rule, that describes the decision making of a machine learning model anchored around a particular instance of interest, but generalized as far as possible. Looking around from our chosen case it becomes clear, that in this machine learning model similar cases are correctly classified as class '2' nearly exclusively using the Petal.Length measurement. Given the rule it is also easy to calculate the number of cases covered and hence provide a relative coverage of the rule (which is a major improvement compared to LIME).
+Here it is clear, why this approach is called Anchors. The result is a rule, that describes the decision making of a machine learning model anchored around a particular instance of interest, but generalized as far as possible. 
+
+We can check the result with the visualized decision tree and see that the anchor in fact explains the model locally. 
+
+#### Discretization
+
+The previous example shows one of anchors' disadvantages. Rules get very specific for numeric values. Discretization may help to group multiple values into one class that gets used as a proxy feature.
+
+We can simply define the cut points for each feature and pass it to anchors:
+```{r}
+bins = list()
+bins[[1]] = list(cuts = c(4.3, 5.4, 6.3, 7.9))
+bins[[2]] = list(cuts = c(2.0, 2.9, 3.2, 4.4))
+bins[[3]] = list(cuts = c(1, 2.6333, 4.9, 6.9))
+bins[[4]] = list(cuts = c(0.1, 0.8666, 1.6, 2.5))
+
+explainer = anchors(iris, model, target = "Species", bins = bins)
+
+explanations = explain(iris[100,], explainer)
+```
+
+The output looks different now and is more easy to interpret:
+```{r}
+printExplanations(explainer, explanations)
+
+# ====Result====
+# IF Petal.Length IN [2.6333,4.9) (ADDED PRECISION: 0.1676, ADDED COVERAGE: -0.245) AND
+# Petal.Width IN [0.8666,1.6) (ADDED PRECISION: 0.8323, ADDED COVERAGE: -0.518)
+# THEN PREDICT 'versicolor'
+# WITH PRECISION 1 AND COVERAGE 0.237
+```
+
 
 ## Authors
 
