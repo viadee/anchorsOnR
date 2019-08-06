@@ -11,11 +11,11 @@ shutdown <- function(control = NULL){
 
   con = control$connection
 
-  cat("Shutting down Anchors JVM: ");
+  message("Shutting down Anchors JVM: ", appendLF = FALSE);
   message = rjson::toJSON(list("quit" = 1))
   writeLines(message, con)
   close(con)
-  cat("Anchors has been successfully terminated.")
+  message("Anchors has been successfully terminated.")
   control <- NULL
   return(control)
 }
@@ -53,14 +53,14 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
 
   if (is.null(con) && startAnchors == TRUE){
     if (ip == "localhost" || ip == "127.0.0.1"){
-      cat("\nAnchors is not running yet, starting it now...\n")
+      message("\nAnchors is not running yet, starting it now...\n")
       stdout <- .anchors.getTmpFile("stdout")
       .anchors.startJar(ip = ip, port = port, name = name,
                         ice_root = tempdir(), stdout = stdout,
                         bind_to_localhost = FALSE, log_dir = NA,
                         log_level = NA, context_path = NA)
 
-      cat("Starting Anchors JVM and connecting: ")
+      message("Starting Anchors JVM and connecting: ")
       Sys.sleep(1L)
       con = tryCatch({
         con = socketConnection(host = ip, port = port, blocking = F, timeout = 10L)
@@ -80,9 +80,8 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
   if (is.null(con)){
     stop("Anchors failed to start, stopping execution.")
   }
-  cat("Successfully connected to anchorj!\n\n")
+  message("Successfully connected to anchorj!\n")
   .anchors.jar.env$port <- port #Ensure right port is called when quitting R
-  cat("\n")
 
   return(con)
 }
@@ -204,15 +203,15 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
   args <- c(args, "-port", port)
   #args <- c(args, "-ice_root", slashes_fixed_ice_root)
 
-  # args <- c(args, "-maxAnchorSize", explainer$maxAnchors)
-  # args <- c(args, "-beamSize", explainer$beams)
-  # args <- c(args, "-delta", explainer$delta)
-  # args <- c(args, "-epsilon", explainer$epsilon)
-  # args <- c(args, "-tau", explainer$tau)
-  # args <- c(args, "-tauDiscrepancy", explainer$tauDiscrepancy)
-  # args <- c(args, "-initSampleCount", explainer$initSamples)
-  # args <- c(args, "-allowSuboptimalSteps", tolower(as.character(explainer$allowSuboptimalSteps)))
-  # args <- c(args, "-batchSize", explainer$batchSize)
+  args <- c(args, "-maxAnchorSize", explainer$maxAnchors)
+  args <- c(args, "-beamSize", explainer$beams)
+  args <- c(args, "-delta", explainer$delta)
+  args <- c(args, "-epsilon", explainer$epsilon)
+  args <- c(args, "-tau", explainer$tau)
+  args <- c(args, "-tauDiscrepancy", explainer$tauDiscrepancy)
+  args <- c(args, "-initSampleCount", explainer$initSamples)
+  args <- c(args, "-allowSuboptimalSteps", tolower(as.character(explainer$allowSuboptimalSteps)))
+  args <- c(args, "-batchSize", explainer$batchSize)
 
   #if(!is.na(log_dir)) args <- c(args, "-log_dir", log_dir)
   #if(!is.na(log_level)) args <- c(args, "-log_level", log_level)
@@ -221,15 +220,14 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
   #if(nthreads > 0L) args <- c(args, "-nthreads", nthreads)
   #if(!is.null(license)) args <- c(args, "-license", license)
 
-   cat("\n")
-   cat(        "Note:  In case of errors look at the following log files:\n")
-   cat(sprintf("    %s\n", stdout))
-   cat(sprintf("    %s\n", stderr))
-   cat("\n")
+   message(        "Note:  In case of errors look at the following log files:")
+   message(sprintf("    %s", stdout))
+   message(sprintf("    %s", stderr))
+   message("\n")
 
   # Print a java -version to the console
   system2(command, c(mem_args, "-version"), wait = T)
-  cat("\n")
+  message("\n")
   # Run the real anchors java command
   rc = system2(command,
                args=args,
@@ -304,7 +302,6 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
   }
 
   if (!is.null(.anchors.pkg.path)){
-    cat(.anchors.pkg.path)
     return(.anchors.pkg.path)
   }
 

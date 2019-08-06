@@ -1,7 +1,3 @@
-makePerturbationTask <- function(df = NULL, instance = NULL){
-
-}
-
 #' @title makePerturbFun
 #' @name makePerturbFun
 #' @rdname makePerturbFun
@@ -40,13 +36,4 @@ makePerturbFun <- function(cl, id = cl, ..., par.vals = list(), config = list())
 #  wl$fix.factors.prediction = fix.factors.prediction
 
   return(wl)
-}
-
-# temp helpers
-getAnchorsOptions = function(){
-  return(getMlrOptions())
-}
-
-listPerturbationFuns = function(){
-  return(listLearners())
 }
