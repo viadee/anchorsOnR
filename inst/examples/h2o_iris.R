@@ -1,21 +1,15 @@
-library("anchors")
-library("h2o")
+library(anchors)
+library(h2o)
 
 data(iris)
 
 h2o.init()
 
-iris.data = as.h2o(iris, destination_frame = "iris.hex")
-
-model = h2o.naiveBayes(x =1:4,
+model = h2o.naiveBayes(x = 1:4,
         y = 5,
-        training_frame = iris.data)
+        training_frame = as.h2o(iris, destination_frame = "iris.hex"))
 
-pert = makePerturbFun(cl = "tabular.featureless")
-
-discIris=iris
-discIris = arules::discretizeDF(discIris)
-explainer = anchors(iris, model, pert, target = 5, discX=discIris)
+explainer = anchors(iris, model, target = "Species")
 
 explanations = explain(iris[sample(nrow(iris), 3), ], explainer)
 

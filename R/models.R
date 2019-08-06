@@ -221,11 +221,11 @@ predict_model.H2OModel <- function(x, newdata, type, ...){
 
     # Use the predicted label with the highest probability
     response = as.vector(pred[,1])
-    truth = newdata[,explainer$model@parameters$y]
+    #truth = newdata[,explainer$model@parameters$y]
 
-    data$truth = truth
+    #data$truth = truth
     data$response = response
-    levels(data$response) = as.character(levels(data$truth))
+    #levels(data$response) = as.character(levels(data$truth))
     data = as.data.frame(filterNull(data))
 
     p = makeS3Obj(c("Prediction"),
