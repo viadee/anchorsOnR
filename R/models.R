@@ -38,19 +38,6 @@
 #' @name model_support
 #' @rdname model_support
 #'
-#' @examples
-#' # Example of adding support for lda models (already available in anchors)
-#' predict_model.lda <- function(x, newdata, type, ...) {
-#'   res <- predict(x, newdata = newdata, ...)
-#'   switch(
-#'     type,
-#'     raw = data.frame(Response = res$class, stringsAsFactors = FALSE),
-#'     prob = as.data.frame(res$posterior, check.names = FALSE)
-#'   )
-#' }
-#'
-#' model_type.lda <- function(x, ...) 'classification'
-#'
 NULL
 
 #' Indicate model type to anchors
@@ -125,87 +112,9 @@ predict_model.WrappedModel <- function(x, newdata, type, ...) {
     stop('mlr must be available when working with WrappedModel models')
   }
   p <- predict(x, newdata = newdata, ...)
-  # switch(
-  #   type,
-  #   raw = data.frame(Response = mlr::getPredictionResponse(p), stringsAsFactors = FALSE),
-  #   prob = mlr::getPredictionProbabilities(p, p$task.desc$class.levels),
-  #   stop('Type must be either "raw" or "prob"', call. = FALSE)
-  # )
 }
-#' @export
-predict_model.xgb.Booster <- function(x, newdata, type, ...) {
-  if (!requireNamespace('xgboost', quietly = TRUE)) {
-    stop('The xgboost package is required for predicting xgboost models')
-  }
-  if (is.data.frame(newdata)) {
-    xnewdata <- xgboost::xgb.DMatrix(as.matrix(newdata[, x$feature_names]))
-  }
-  p <- data.frame(predict(x, newdata = xnewdata, reshape = TRUE, ...), stringsAsFactors = FALSE)
 
-  if (ncol(p) == 1){ # Binary Classification
-    names(p) = '1'
-    p[['0']] <- 1 - p[['1']]
-  } else {
-    names(p) <- as.character(seq_along(p))
-  }
 
-  # Use the predicted label with the highest probability
-  response = apply(p,1,function(x) colnames(p)[which.max(x)])
-  truth = newdata[,setdiff(colnames(newdata), x$feature_names)] # FIXME: Plus 1 shift required?
-
-  data = namedList(c("id", "truth", "response", "prob"))
-  data$id = rownames(instance)
-
-  data$truth = truth
-  data$response = response
-  data = as.data.frame(filterNull(data))
-
-  p = makeS3Obj(c("Prediction"),
-            data = data,
-            predict.type = "response",
-            threshold = (1/ncol(p)),
-            task.desc = NULL,
-            error = NA_character_,
-            dump = NULL
-  )
-
-  # if (type == 'raw') {
-  #   names(p) <- 'Response'
-  # } else if (type == 'prob') {
-  #   if (ncol(p) == 1) { # Binary classification
-  #     names(p) = '1'
-  #     p[['0']] <- 1 - p[['1']]
-  #   } else {
-  #     names(p) <- as.character(seq_along(p))
-  #   }
-  # }
-  p
-}
-#' @export
-predict_model.lda <- function(x, newdata, type, ...) {
-  res <- predict(x, newdata = newdata, ...)
-  switch(
-    type,
-    raw = data.frame(Response = res$class, stringsAsFactors = FALSE),
-    prob = as.data.frame(res$posterior, check.names = FALSE)
-  )
-}
-#' @export
-predict_model.keras.engine.training.Model <- function(x, newdata, type, ...) {
-  if (!requireNamespace('keras', quietly = TRUE)) {
-    stop('The keras package is required for predicting keras models')
-  }
-  res <- predict(x, as.array(newdata))
-  if (type == 'raw') {
-    data.frame(Response = res[, 1])
-  } else {
-    if (ncol(res) == 1) {
-      res <- cbind(1 - res, res)
-    }
-    colnames(res) <- as.character(seq_len(ncol(res)))
-    as.data.frame(res, check.names = FALSE)
-  }
-}
 #' @export
 predict_model.H2OModel <- function(x, newdata, type, ...){
   if (!requireNamespace('h2o', quietly = TRUE)) {
@@ -245,26 +154,7 @@ predict_model.H2OModel <- function(x, newdata, type, ...){
     stop('This h2o model is not currently supported.')
   }
 }
-#' @export
-predict_model.ranger <- function(x, newdata, type, ...) {
-  if (!requireNamespace('ranger', quietly = TRUE)) {
-    stop('The ranger package is required for predicting ranger models')
-  }
-  if (x$treetype == 'Classification') {
-    res_votes <- predict(x, data = newdata, predict.all = TRUE, ...)$predictions
-    res_votes <- t(table(res_votes, row(res_votes)))
-    classes <- colnames(x$confusion.matrix)
-    res <- matrix(0, nrow = nrow(res_votes), ncol = length(classes), dimnames = list(NULL, classes))
-    res[, as.integer(colnames(res_votes))] <- res_votes / x$num.trees
-  } else {
-    res <- predict(x, data = newdata, ...)$predictions
-  }
-  switch(
-    type,
-    raw = data.frame(Response = res),
-    prob = as.data.frame(res)
-  )
-}
+
 
 #' @rdname model_support
 #' @export
@@ -298,34 +188,7 @@ model_type.WrappedModel <- function(x, ...) {
     multilabel = 'multilabel'
   )
 }
-#' @export
-model_type.xgb.Booster <- function(x, ...) {
-  obj <- x$params$objective
-  if (is.null(obj)) return('regression')
-  if (is.function(obj)) stop('Unsupported model type', call. = FALSE)
-  type <- strsplit(obj, ':')[[1]][1]
-  switch(
-    type,
-    reg = 'regression',
-    binary = 'classification',
-    multi = 'classification',
-    stop('Unsupported model type', call. = FALSE)
-  )
-}
-#' @export
-model_type.lda <- function(x, ...) 'classification'
-#' @export
-model_type.keras.engine.training.Model <- function(x, ...) {
-  if (!requireNamespace('keras', quietly = TRUE)) {
-    stop('The keras package is required for predicting keras models')
-  }
-  num_layers <- length(x$layers)
-  if (keras::get_config(keras::get_layer(x, index = num_layers))$activation == 'linear') {
-    'regression'
-  } else {
-    'classification'
-  }
-}
+
 #' @export
 model_type.H2OModel <- function(x, ...) {
   h2o_model_class <- class(x)[[1]]
@@ -335,16 +198,5 @@ model_type.H2OModel <- function(x, ...) {
     return('regression')
   } else {
     stop('This h2o model is not currently supported.')
-  }
-}
-#' @export
-model_type.ranger <- function(x, ...) {
-  ranger_model_class <- x$treetype
-  if (ranger_model_class == "Probability estimation" || ranger_model_class == "Classification") {
-    return('classification')
-  } else if (ranger_model_class == "Regression") {
-    return('regression')
-  } else {
-    stop(paste0('ranger model class "',ranger_model_class,'" is not currently supported.'))
   }
 }
