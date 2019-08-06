@@ -1,4 +1,4 @@
-library("anchors")
+library(anchors)
 library(mlr)
 
 data(iris)
@@ -28,10 +28,9 @@ r=lapply(2:(ncol(iris) - 1), function(i) {
 explainer = anchors(iris, model, bins = bins, target = "Species")
 
 # Produce explanations for selected instances
-toExplain = iris[1,]
+toExplain = iris[sample(1:nrow(iris), 1),]
 
-explanations = explain(toExplain, explainer, labels = predict(model, newdata = toExplain)$data$response, probKeepPerturbations=0)
-
+explanations = explain(toExplain, explainer)
 
 # print explanations
 printExplanations(explainer, explanations)

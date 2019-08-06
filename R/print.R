@@ -43,6 +43,5 @@ printExplanations <- function(explainer, explanations){
     cat(predictOutput, sep = "\n")
     cat(paste("WITH PRECISION", unique(case[,"precision"]), "AND COVERAGE", unique(case[,"coverage"])), sep = "\n")
     cat("\n")
-
   }
 }

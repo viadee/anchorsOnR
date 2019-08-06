@@ -61,6 +61,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
                         log_level = NA, context_path = NA)
 
       cat("Starting Anchors JVM and connecting: ")
+      Sys.sleep(1L)
       con = tryCatch({
         con = socketConnection(host = ip, port = port, blocking = F, timeout = 10L)
       }, error = function(cond){
@@ -88,7 +89,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
 
 
 .anchors.pkg.path <- NULL
-.anchors.pkg.path <- system.file("inst/java", "RModuleExtension.jar", package = "anchors")
+.anchors.pkg.path <- system.file("java", "RModuleExtension.jar", package = "anchors")
 .anchors.jar.env <- new.env()    # Dummy variable used to shutdown Anchors when R exits
 
 .onLoad <- function(lib, pkg) {
@@ -303,6 +304,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
   }
 
   if (!is.null(.anchors.pkg.path)){
+    cat(.anchors.pkg.path)
     return(.anchors.pkg.path)
   }
 
@@ -310,12 +312,6 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
     pkg_path = dirname(system.file(".", package = "anchors"))
   } else {
     pkg_path = .anchors.pkg.path
-
-    # Find Anchors-jar from testthat tests inside RStudio.
-    if (length(grep("Anchors-dev/h2o-r/h2o$", pkg_path)) == 1L) {
-      tmp = substr(pkg_path, 1L, nchar(pkg_path) - nchar("h2o-dev/h2o-r/h2o"))
-      return(sprintf("%s/h2o-dev/build/h2o.jar", tmp))
-    }
   }
 
   # Check for jar file in 'java' directory.
