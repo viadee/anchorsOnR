@@ -60,12 +60,11 @@ explain.data.frame <- function(x, explainer, labels = NULL,
   backend_connection <- initAnchors(explainer = explainer)
   explainer$connection <- backend_connection
 
-  cat("Explaining ", nrow(x), " observations. This may take a while.")
-  cat("\n")
+  message("Explaining ", nrow(x), " observations. This may take a while.")
 
 
   for (i in 1:nrow(x)) {
-    cat("[Explaining] Instance ", i, ": ")
+    message("[Explaining] Instance ", i, ": ", appendLF = FALSE)
 
     instance = x[i,]
     trainData <- explainer$trainingsData[, names(explainer$trainingsData) %in% names(instance)]
@@ -100,7 +99,7 @@ explain.data.frame <- function(x, explainer, labels = NULL,
 
       if (response$status == "eval_request") {
         # Anchors requests perturbation and model call
-        cat(".")
+        message(".", appendLF = FALSE)
 
         anchors = unlist(response$anchors)
         samplesToEvaluate = response$samplesToEvaluate
@@ -130,7 +129,7 @@ explain.data.frame <- function(x, explainer, labels = NULL,
                                matchingLabels,
                                precision)
       } else if (response$status == "coverage_request") {
-        cat("+")
+        message("+", appendLF = FALSE)
         coverage <-
           calculate.coverage(instance,
                              unlist(response$features),
@@ -144,9 +143,8 @@ explain.data.frame <- function(x, explainer, labels = NULL,
 
 
     if ("anchorResult" %in% names(response)) {
-      cat(" \r")
-      cat("[Explained] Instance ")
-      cat("\n")
+      message(" \r", appendLF = FALSE)
+      message("[Explained] Instance ")
 
       rules = response$anchorResult[[1]]
       featuresWeight = sapply(
