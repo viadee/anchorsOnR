@@ -29,10 +29,7 @@ bins = buildBins(columnIndex = 4, cuts = c(0.1, 0.8666667, 1.6, 2.5), currentBin
 # Prepare explainer to explain model with anchors
 explainer = anchors(iris, model, bins = bins, target = "Species")
 
-# Produce explanations for selected instances
-toExplain = iris[sample(1:nrow(iris), 10),]
-
-explanations = explain(toExplain, explainer)
+explanations = explain(iris[sample(1:nrow(iris), 10),], explainer)
 
 # print explanations
 printExplanations(explainer, explanations)

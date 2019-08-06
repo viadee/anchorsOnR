@@ -29,11 +29,9 @@ devtools::install_github("viadee/anchorsOnR")
 ```
 The following dependencies are required to use this package (unmodified, distributed and maintained by their respective authors through the established channels such as CRAN): 
 * checkmate (BSD 3 clause)
-* rjson (GPL-2)
 * jsonlite (MIT)
 * BBmisc (BSD 3 clause)
 * uuid (MIT)
-* arules (GPL-3)
 * magrittr (MIT)
 
 ### Using the Algorithm
