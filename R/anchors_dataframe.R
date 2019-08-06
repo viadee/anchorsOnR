@@ -11,7 +11,7 @@
 anchors.data.frame <- function(x, model, perturbator = NULL, bins = NULL,
                                target = NULL, maxAnchors = NULL, beams = 2L,
                                delta = 0.1, epsilon = 0.1, tau = 0.9,
-                               tauDiscrepancy = 0.05, initSamples = 1L,
+                               tauDiscrepancy = 0.05, initSamples = 10L,
                                allowSuboptimalSteps = TRUE, batchSize = 100L,
                                ...) {
 

@@ -9,13 +9,13 @@
 \usage{
 anchors(x, model, perturbator = NULL, bins = NULL, target = NULL,
   maxAnchors = NULL, beams = 2L, delta = 0.1, epsilon = 0.1,
-  tau = 0.9, tauDiscrepancy = 0.05, initSamples = 1L,
+  tau = 0.9, tauDiscrepancy = 0.05, initSamples = 10L,
   allowSuboptimalSteps = TRUE, batchSize = 100L, ...)
 
 \method{anchors}{data.frame}(x, model, perturbator = NULL, bins = NULL,
   target = NULL, maxAnchors = NULL, beams = 2L, delta = 0.1,
   epsilon = 0.1, tau = 0.9, tauDiscrepancy = 0.05,
-  initSamples = 1L, allowSuboptimalSteps = TRUE, batchSize = 100L,
+  initSamples = 10L, allowSuboptimalSteps = TRUE, batchSize = 100L,
   ...)
 }
 \arguments{

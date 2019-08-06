@@ -5,8 +5,6 @@
 #' @rdname explain
 #' @name explain
 #'
-#' @importFrom gower gower_dist
-#' @importFrom stats dist
 #' @export
 explain.data.frame <- function(x, explainer, labels = NULL,
                                feature_select = 'auto', probKeep=0.5, ...) {
