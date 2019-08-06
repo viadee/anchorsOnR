@@ -8,7 +8,7 @@
 explain(x, explainer, labels = NULL, feature_select = "auto", ...)
 
 \method{explain}{data.frame}(x, explainer, labels = NULL,
-  feature_select = "auto", probKeep = 0.5, ...)
+  feature_select = "auto", p = 0.5, ...)
 }
 \arguments{
 \item{x}{New observations to explain, of the same format as used when

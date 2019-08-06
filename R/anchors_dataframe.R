@@ -42,7 +42,7 @@ anchors.data.frame <- function(x, model, perturbator = NULL, bins = NULL,
   explainer$bins <- validate.bins(bins, predictorCount)
 
   if (is.null(perturbator))
-    perturbator <- makePerturbFun("tabular.featureless")
+    perturbator <- perturbTabular
   explainer$perturbator <- perturbator
 
   if (is.null(maxAnchors))
