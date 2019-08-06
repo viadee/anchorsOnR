@@ -64,7 +64,7 @@ model = train(learner = lrn, task = task)
 
 The created decision tree can be used to compare and validate the algorithm's results, since it can be easily visualized (as the approach is *model agnostic* any model could be explained, including such that are not inherently visualizable).
 
-![Iris decision tree visualized](irisDecisionTree.png)
+![Iris decision tree visualized](iris_decision_tree.png)
 
 #### Calling anchorsOnR
 
