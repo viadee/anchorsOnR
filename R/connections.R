@@ -98,7 +98,6 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
   rcurl_package_is_installed = length(find.package("RCurl", quiet = TRUE)) > 0L
   if(!rcurl_package_is_installed) {
     if(.Platform$OS.type == "unix") {
-      # packageStartupMessage("Checking libcurl version...")
       curl_path <- Sys.which("curl-config")
       if(!nzchar(curl_path[[1L]]) || system2(curl_path, args = "--version") != 0L)
         stop("libcurl not found. Please install libcurl\n",
@@ -188,20 +187,9 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
   if(is.na(name)) name <- paste0("Anchors_started_from_R_", gsub("\\s", "_", Sys.info()["user"]),"_",ltrs,nums)
   .anchors.jar.env$name <- name
 
-#  if(enable_assertions) args <- c(args, "-ea")
-#  if(!is.null(jvm_custom_args)) args <- c(args,jvm_custom_args)
-
   class_path <- paste0(c(jar_file, extra_classpath), collapse=.Platform$path.sep)
- # args <- c(args, "-cp", class_path, "water.AnchorsApp")
- # args <- c(args, "-cp", class_path)
   args <- c(args, "-jar", jar_file)
-  #args <- c(args, "-name", name)
-  #args <- c(args, "-ip", ip)
-  #if (bind_to_localhost) {
-  #  args <- c(args, "-web_ip", ip)
-  #}
   args <- c(args, "-port", port)
-  #args <- c(args, "-ice_root", slashes_fixed_ice_root)
 
   args <- c(args, "-maxAnchorSize", explainer$maxAnchors)
   args <- c(args, "-beamSize", explainer$beams)
@@ -212,13 +200,6 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
   args <- c(args, "-initSampleCount", explainer$initSamples)
   args <- c(args, "-allowSuboptimalSteps", tolower(as.character(explainer$allowSuboptimalSteps)))
   args <- c(args, "-batchSize", explainer$batchSize)
-
-  #if(!is.na(log_dir)) args <- c(args, "-log_dir", log_dir)
-  #if(!is.na(log_level)) args <- c(args, "-log_level", log_level)
-  #if(!is.na(context_path)) args <- c(args, "-context_path", context_path)
-
-  #if(nthreads > 0L) args <- c(args, "-nthreads", nthreads)
-  #if(!is.null(license)) args <- c(args, "-license", license)
 
    message(        "Note:  In case of errors look at the following log files:")
    message(sprintf("    %s", stdout))
@@ -286,7 +267,6 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
 
 # This function returns a string to the valid path on the local filesystem of the anchors.jar file,
 # or it calls stop() and does not return.
-#
 # It will download a jar file if it needs to.
 .anchors.downloadJar <- function(overwrite = FALSE) {
   if(!is.logical(overwrite) || length(overwrite) != 1L || is.na(overwrite)) stop("`overwrite` must be TRUE or FALSE")

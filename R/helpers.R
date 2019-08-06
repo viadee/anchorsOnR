@@ -1,11 +1,7 @@
-listPerturbTypes = function ()
-{
-  c("tabular", "text", "image", "audio", "video")
-}
-
 cleanupPackageNames = function(pkgs) {
   stri_replace_all(pkgs, "", regex = "^[!_]")
 }
+
 
 create.empty.discretization <- function(featureCount) {
   bins = lapply(seq(featureCount), function(feature){
