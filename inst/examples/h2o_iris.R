@@ -17,3 +17,5 @@ explanations = explain(iris[sample(nrow(iris), 3), ], explainer)
 
 printExplanations(explainer, explanations)
 
+h2o.shutdown()
+
