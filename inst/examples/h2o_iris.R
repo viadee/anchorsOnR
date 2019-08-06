@@ -1,6 +1,8 @@
 library(anchors)
 library(h2o)
 
+set.seed(123)
+
 data(iris)
 
 h2o.init()

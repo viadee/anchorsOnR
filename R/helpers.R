@@ -216,27 +216,24 @@ buildDescription <- function(bin, cuts, right, short) {
 }
 
 #Helper function to build bins
-buildBins <- function(columnIndex, currentBins, cuts=NULL, categoriesPerBinList=NULL, right=F, disc=T){
+buildBins <- function(columnIndex, cuts = NULL, currentBins = NULL, categoriesPerBinList = NULL, right = F, disc = T){
   if(is.null(currentBins)){
     currentBins <- list()
   }
-  currentBins[[columnIndex]]=list()
-  currentBins[[columnIndex]]$doDiscretize=disc
+  currentBins[[columnIndex]] = list()
+  currentBins[[columnIndex]]$doDiscretize = disc
 
-  if(!disc) return(currentBins)
+  if(!disc)
+    return(currentBins)
 
   if(!is.null(cuts)) {
     currentBins[[columnIndex]]$numeric = T
     currentBins[[columnIndex]]$cuts = cuts
     currentBins[[columnIndex]]$right = right
-
-  }else{
-
+  } else {
     currentBins[[columnIndex]] = categoriesPerBinList
     currentBins[[columnIndex]]$numeric = F
-
   }
 
   return(currentBins)
-
 }
