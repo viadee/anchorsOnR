@@ -91,10 +91,10 @@ printExplanations(explainer, explanations)
 # Petal.Width = 1.3
 # WITH LABEL  = 'versicolor'
 # ====Result====
-# IF Petal.Length = 4.1 (ADDED PRECISION: 0.1736, ADDED COVERAGE: -0.26) AND
-# Petal.Width = 1.3 (ADDED PRECISION: 0.8263, ADDED COVERAGE: -0.458)
+# IF Petal.Length = 4.1 (ADDED PRECISION: 0.1736, ADDED COVERAGE: -0.085) AND
+# Petal.Width = 1.3 (ADDED PRECISION: 0.8263, ADDED COVERAGE: -0.913)
 # THEN PREDICT 'versicolor'
-# WITH PRECISION 1 AND COVERAGE 0.282
+# WITH PRECISION 1 AND COVERAGE 0.002
 ```
 It becomes obvious why this approach is called Anchors: its result are rules, that describes the decision making of a machine learning model anchored around a particular instance of interest, while generalizing to as many other instances as possible. 
 
@@ -102,7 +102,7 @@ We can check the result with the visualized decision tree and see that the ancho
 
 #### Discretization
 
-The previous example shows one of anchors' disadvantages. Rules get very specific for numeric values. Discretization helps to group multiple values into one class that gets used as a proxy feature by anchors. This way, we can obtain anchors that generalize superiorly.
+The previous example shows one of anchors' disadvantages. Rules get very specific for numeric values and thus, coverage is low. Discretization helps to group multiple values into one class that gets used as a proxy feature by anchors. This way, we can obtain anchors that generalize superiorly.
 
 We can simply define the cut points for each feature and pass it to anchors:
 ```{r}
@@ -117,15 +117,16 @@ explainer = anchors(iris, model, target = "Species", bins = bins)
 explanations = explain(iris[100,], explainer)
 ```
 
-The output looks different now and is more easy to interpret:
+The output looks different now. Being less specific and having a higher coverage, this rule applies to more instances than before and is more easy to interpret.
+
 ```{r}
 printExplanations(explainer, explanations)
 
 # ====Result====
-# IF Petal.Length IN [2.6333,4.9) (ADDED PRECISION: 0.1676, ADDED COVERAGE: -0.245) AND
-# Petal.Width IN [0.8666,1.6) (ADDED PRECISION: 0.8323, ADDED COVERAGE: -0.518)
+# IF Petal.Length IN [2.6333,4.9) (ADDED PRECISION: 0.1676, ADDED COVERAGE: -0.251) AND
+# Petal.Width IN [0.8666,1.6) (ADDED PRECISION: 0.8323, ADDED COVERAGE: -0.635)
 # THEN PREDICT 'versicolor'
-# WITH PRECISION 1 AND COVERAGE 0.237
+# WITH PRECISION 1 AND COVERAGE 0.114
 ```
 
 

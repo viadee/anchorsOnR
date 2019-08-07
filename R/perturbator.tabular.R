@@ -30,7 +30,7 @@ perturbTabular = makePerturbator(
 )
 
 exchangeFeatureValue <- function(dataset, instance, feature, p) {
-  if (as.logical(rbinom(1, size = 1, prob = 1 - p))) {
+  if (as.logical(rbinom(1, size = 1, prob = p))) {
     instance[, feature] <- dataset[sample(rownames(dataset), 1), feature]
   }
   return(instance)

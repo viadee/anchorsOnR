@@ -69,7 +69,7 @@ explain.data.frame <- function(x, explainer, labels = NULL,
     # Featureless perturbations that are required to obtain coverage of a rule
     coverage_perturbations <-
       do.call(rbind, lapply(1:1000, function(x) {
-        perturbate(perturbTabularDisc, trainData, bins, instance, integer(0), p)
+        perturbate(perturbTabularDisc, trainData, bins, instance, integer(0), 1)
       }))
 
     # set meta data for IPC
@@ -80,6 +80,8 @@ explain.data.frame <- function(x, explainer, labels = NULL,
 
     while (TRUE) {
       response <- await.server.response(backend_connection)
+
+      # TODO tomorrow
 
       if (response$status == "response") {
         # Server sends stop
