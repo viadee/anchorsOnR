@@ -16,7 +16,5 @@ calculate.coverage <-
     matchingRows = nrow(suppressMessages(plyr::match_df(reducedPerturbations, featureVec)))
     coverage = matchingRows / nrow(reducedPerturbations)
 
-    browser()
-
     return(coverage)
   }
