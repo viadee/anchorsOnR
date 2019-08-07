@@ -85,7 +85,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
 
 
 .anchors.pkg.path <- NULL
-.anchors.pkg.path <- system.file("java", "RModuleExtension.jar", package = "anchors")
+.anchors.pkg.path <- system.file("java", "RemoteModuleExtension.jar", package = "anchors")
 .anchors.jar.env <- new.env()    # Dummy variable used to shutdown Anchors when R exits
 
 .onLoad <- function(lib, pkg) {
@@ -257,8 +257,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
 # It will download a jar file if it needs to.
 .anchors.downloadJar <- function(overwrite = FALSE) {
   if(!is.logical(overwrite) || length(overwrite) != 1L || is.na(overwrite)) stop("`overwrite` must be TRUE or FALSE")
-  #.anchors.pkg.path <- system.file("inst/java", "RModuleExtension.jar", package = "anchors")
-  .anchors.pkg.path <- system.file("java", "RModuleExtension.jar", package = "anchors")
+  .anchors.pkg.path <- system.file("java", "RemoteModuleExtension.jar", package = "anchors")
   # PUBDEV-3534 hook to use arbitrary anchors.jar
   own_jar = Sys.getenv("ANCHORS_JAR_PATH")
   is_url = function(x) any(grepl("^(http|ftp)s?://", x), grepl("^(http|ftp)s://", x))
@@ -280,7 +279,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
 
   # Check for jar file in 'java' directory.
   if (! overwrite) {
-    possible_file <- file.path(pkg_path, "java", "RModuleExtension.jar")
+    possible_file <- file.path(pkg_path, "java", "RemoteModuleExtension.jar")
     if (file.exists(possible_file)) {
       return(possible_file)
     }
@@ -288,7 +287,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
 
   # Check for jar file in 'inst/java' directory.
   if (! overwrite) {
-    possible_file <- file.path(pkg_path, "inst", "java", "RModuleExtension.jar")
+    possible_file <- file.path(pkg_path, "inst", "java", "RemoteModuleExtension.jar")
     if (file.exists(possible_file)) {
       return(possible_file)
     }

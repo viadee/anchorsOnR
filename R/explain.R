@@ -65,7 +65,7 @@
 #'
 #' @export
 #'
-explain <- function(x, explainer, labels = NULL, feature_select = "auto", ...) {
+explain <- function(x, explainer, labels = NULL, feature_select = 'auto', ...) {
   UseMethod("explain", x)
 }
 

@@ -7,7 +7,7 @@
 #'
 #' @export
 explain.data.frame <- function(x, explainer, labels = NULL,
-                               feature_select = 'auto', p=0.5, ...) {
+                               feature_select = 'auto', ...) {
 
   checkmate::assert_true(is.data_frame_explainer(explainer))
   m_type <- model_type(explainer)
@@ -68,8 +68,8 @@ explain.data.frame <- function(x, explainer, labels = NULL,
 
     # Featureless perturbations that are required to obtain coverage of a rule
     coverage_perturbations <-
-      do.call(rbind, lapply(1:1000, function(x) {
-        perturbate(perturbTabularDisc, trainData, bins, instance, integer(0), p)
+      do.call(rbind, lapply(1:explainer$coverage_perturbation_count, function(x) {
+        perturbate(perturbTabularDisc, trainData, bins, instance, integer(0), 1)
       }))
 
     # set meta data for IPC
@@ -80,6 +80,11 @@ explain.data.frame <- function(x, explainer, labels = NULL,
 
     while (TRUE) {
       response <- await.server.response(backend_connection)
+
+      # TODO tomorrow
+      if (is.null(response$status)) {
+        stop("Java backend sent an invalid response")
+      }
 
       if (response$status == "response") {
         # Server sends stop
@@ -99,7 +104,7 @@ explain.data.frame <- function(x, explainer, labels = NULL,
             bins,
             instance,
             anchors,
-            p
+            explainer$p
           )
         }))
 

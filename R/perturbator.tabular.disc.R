@@ -16,6 +16,7 @@
 #' @export
 perturbTabularDisc = makePerturbator(
   perturbator = function(dataset, bins, instance, anchors, p, ...) {
+
     pertCols <- setdiff(seq(1, ncol(dataset), 1), anchors)
 
     for (i in pertCols) {
@@ -31,12 +32,19 @@ perturbTabularDisc = makePerturbator(
       providedBin <- provideBin(instance[i], bin)
       binsNo <- 1:(length(bins[[i]]$cuts) + 1)
 
-      instance[, i] <- sample(c(providedBin, binsNo[-providedBin]), 1,
-                              p = c(p, rep(
-                                (1 - p) / length(bin$cuts),
-                                length(bin$cuts)
-                              ))
-      )
+      # If the value is not to be changed. Should not occur in this function anyways, as usually p = 1
+      if (as.logical(rbinom(1, size = 1, prob = p)) == F) {
+        instance[, i] <- providedBin
+      } else {
+        #instance[, i] <- sample(c(providedBin, binsNo[-providedBin]), 1,
+        #                        p = c(p, rep(
+        #                          (1 - p) / length(bin$cuts),
+        #                          length(bin$cuts)
+        #                        ))
+        #)
+        # If the value is to be changed take a random other class and its discretized value
+        instance[, i] <- provideBin(dataset[sample(rownames(dataset), 1), i], bin)
+      }
     }
 
     return(instance)
