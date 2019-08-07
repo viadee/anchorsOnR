@@ -68,7 +68,7 @@ The created decision tree can easily be visualized and thus the algorithm's resu
 
 [^1]As mentioned before, explaining a decision tree is of little use in practice as it includes explainability in its structure. Therefore, we consider this model a *black box*.
 
-![Iris decision tree visualized](irisDecisionTree.png)
+![Iris decision tree visualized](iris_decision_tree.png)
 
 #### Calling anchorsOnR
 
