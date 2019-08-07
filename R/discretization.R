@@ -61,12 +61,27 @@ validate.bins <- function(bins, length) {
     stop("There needs to be one bin defined for each element")
   for (i in 1:length(bins)) {
     bin <- bins[[i]]
+    if (is.null(bin)) {
+      stop("Indexes must range from 0 to length(features)")
+    }
+    if (is.numeric(bin)) {
+      newBin <- list()
+      if (length(bin) > 0) {
+        newBin$numeric <- T
+        newBin$cuts <- bin
+      } else {
+        newBin$doDiscretize = F
+      }
+      bin <- newBin
+    }
     if (length(which(!(
       names(bin) %in% c("doDiscretize", "numeric", "classes", "cuts", "right")
     ))) > 0)
       stop("Invalid bin arguments")
-    if (!is.null(bin$doDiscretize) && bin$doDiscretize == F)
+    if (!is.null(bin$doDiscretize) && bin$doDiscretize == F) {
+      bins[[i]] <- bin
       next
+    }
 
     if (is.null(bin$numeric)) {
       if ((is.null(bin$cuts) && is.null(bin$classes)) ||
@@ -93,7 +108,6 @@ validate.bins <- function(bins, length) {
 
     bins[[i]] <- bin
   }
-
   return(bins)
 }
 

@@ -37,8 +37,10 @@
 #'
 #' @name anchors
 #' @export
-anchors <- function(x, model, perturbator = NULL, bins = NULL, target = NULL,
-                    maxAnchors = NULL, beams = 2L, delta = 0.1, epsilon = 0.1, tau = 0.9, tauDiscrepancy = 0.05,
+anchors <- function(x, model, perturbator = NULL, bins = NULL,
+                    p = 0.5, coverage_perturbation_count = 1000,
+                    target = NULL, maxAnchors = NULL, beams = 2L,
+                    delta = 0.1, epsilon = 0.1, tau = 0.9, tauDiscrepancy = 0.05,
                     initSamples = 10L, allowSuboptimalSteps = TRUE, batchSize = 100L, ...) {
   UseMethod('anchors', x)
 }

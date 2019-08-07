@@ -28,11 +28,8 @@ bins[[4]] = list(cuts = c(0.1, 0.8666667, 1.6, 2.5))
 # Prepare explainer to explain model with anchors
 explainer = anchors(iris, model, target = "Species", bins = bins)
 
-#library(profvis)
-#profvis({
 # Construct the explanations
 explanations = explain(iris[100,], explainer)
-#})
 
 # print explanations
 printExplanations(explainer, explanations)
