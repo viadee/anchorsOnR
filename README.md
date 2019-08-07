@@ -56,13 +56,17 @@ data(iris)
 
 # our goal is to predict the species
 task = makeClassifTask(data = iris, target = "Species", id = "iris")
+
 # setting up a learner
 lrn = makeLearner("classif.rpart")
+
 # train the learner on the training set
 model = train(learner = lrn, task = task)
 ```
 
-The created decision tree can be used to compare and validate the algorithm's results, since it can be easily visualized (as the approach is *model agnostic* any model could be explained, including such that are not inherently visualizable).
+The created decision tree can easily be visualized and thus the algorithm's results be compared and validated. Nonetheless, the approach and is *model agnostic*, which means any other model could be explained. This also includes such  that are not inherently visualizable. 
+
+[^1]As mentioned before, explaining a decision tree is of little use in practice as it includes explainability in its structure. Therefore, we consider this model a *black box*.
 
 ![Iris decision tree visualized](irisDecisionTree.png)
 
@@ -92,13 +96,13 @@ printExplanations(explainer, explanations)
 # THEN PREDICT 'versicolor'
 # WITH PRECISION 1 AND COVERAGE 0.282
 ```
-Here it is clear, why this approach is called Anchors. The result is a rule, that describes the decision making of a machine learning model anchored around a particular instance of interest, but generalized as far as possible. 
+It becomes obvious why this approach is called Anchors: its result are rules, that describes the decision making of a machine learning model anchored around a particular instance of interest, while generalizing to as many other instances as possible. 
 
 We can check the result with the visualized decision tree and see that the anchor in fact explains the model locally. 
 
 #### Discretization
 
-The previous example shows one of anchors' disadvantages. Rules get very specific for numeric values. Discretization may help to group multiple values into one class that gets used as a proxy feature.
+The previous example shows one of anchors' disadvantages. Rules get very specific for numeric values. Discretization helps to group multiple values into one class that gets used as a proxy feature by anchors. This way, we can obtain anchors that generalize superiorly.
 
 We can simply define the cut points for each feature and pass it to anchors:
 ```{r}
