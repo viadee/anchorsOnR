@@ -19,16 +19,19 @@ explain.data.frame <- function(x, explainer, labels = NULL,
     stop("Regression models are not yet supported")
   }
 
+  # Remove target column from single instance
   if (!is.null(explainer$target)) {
     targetIndex <- which(colnames(x) == explainer$target)
-    if (length(targetIndex) != 1 && targetIndex < 0)
-      stop("Could not find unambiguous target column")
-
-    if (is.null(labels))
-      labels <- predict_model(explainer$model, x)$data$response
-
-    x <- x[, -targetIndex]
+    if (length(targetIndex) != 1 && targetIndex < 0) {
+      # Explained instance should not necessarily need target column
+      #stop("Could not find unambiguous target column")
+    } else {
+      x <- x[, -targetIndex]
+    }
   }
+
+  if (is.null(labels))
+    labels <- predict_model(explainer$model, x)$data$response
 
   if (is.null(labels))
     stop("Either labels or a target column to be explained need to be specified")
@@ -64,12 +67,21 @@ explain.data.frame <- function(x, explainer, labels = NULL,
     message("[Explaining] Instance ", i, ": ", appendLF = FALSE)
 
     instance = x[i,]
-    trainData <- explainer$trainingsData[, names(explainer$trainingsData) %in% names(instance)]
+    discretized_instance = discretize.data.frame(instance, bins)
+    # Removed target column from train
+    trainData <- explainer$x[, names(explainer$x) %in% names(instance)]
 
     # Featureless perturbations that are required to obtain coverage of a rule
+    # dataset, discretized_dataset, instance, discretized_instance,
     coverage_perturbations <-
       do.call(rbind, lapply(1:explainer$coverage_perturbation_count, function(x) {
-        perturbate(perturbTabularDisc, trainData, bins, instance, integer(0), 1)
+        perturbate(perturbTabularDisc,
+                   trainData,
+                   explainer$discretizedDF,
+                   instance,
+                   discretized_instance,
+                   integer(0),
+                   1)
       }))
 
     # set meta data for IPC
@@ -100,11 +112,13 @@ explain.data.frame <- function(x, explainer, labels = NULL,
 
         # Create pertubations for rule
         instancesDf = do.call(rbind, lapply(1:samplesToEvaluate, function(x) {
-          perturbate(explainer$perturbator, trainData,
-            bins,
-            instance,
-            anchors,
-            explainer$p
+          perturbate(explainer$perturbator,
+                     trainData,
+                     explainer$discretizedDF,
+                     instance,
+                     discretized_instance,
+                     anchors,
+                     explainer$p
           )
         }))
 
@@ -144,21 +158,21 @@ explain.data.frame <- function(x, explainer, labels = NULL,
         getFeatureWeight,
         candidates = rules,
         instance = instance,
-        dataset = explainer$trainingsData
+        dataset = explainer$x
       )
       addedCoverage = sapply(
         rules$canonicalFeatures,
         getAddedCoverage,
         candidates = rules,
         instance = instance,
-        dataset = explainer$trainingsData
+        dataset = explainer$x
       )
       featuresText = sapply(
         rules$canonicalFeatures,
         getFeatureText,
         candidates = rules,
         instance = instance,
-        dataset = explainer$trainingsData,
+        dataset = explainer$x,
         bins = explainer$bins
       )
 
@@ -167,7 +181,7 @@ explain.data.frame <- function(x, explainer, labels = NULL,
         getFeatureText,
         candidates = rules,
         instance = instance,
-        dataset = explainer$trainingsData,
+        dataset = explainer$x,
         bins = explainer$bins,
         short=F
       )
@@ -177,7 +191,7 @@ explain.data.frame <- function(x, explainer, labels = NULL,
         getFeatureText,
         candidates = rules,
         instance = instance,
-        dataset = explainer$trainingsData,
+        dataset = explainer$x,
         bins = explainer$bins,
         short=T
       )

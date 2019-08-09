@@ -18,9 +18,6 @@ anchors.data.frame <- function(x, model, perturbator = NULL, bins = NULL,
 
   explainer <- c(as.list(environment()), list(...))
 
-  # Set train data
-  explainer$trainingsData <- x
-
   # Check target
   if (!is.null(target)) {
     explainer$target = target
@@ -34,7 +31,7 @@ anchors.data.frame <- function(x, model, perturbator = NULL, bins = NULL,
   }
 
   # Set bins/discretization
-  predictorCount <- length(explainer$trainingsData)
+  predictorCount <- length(explainer$x)
   if (!is.null(explainer$target))
     predictorCount = predictorCount - 1
   if (is.null(bins)) {
@@ -42,6 +39,19 @@ anchors.data.frame <- function(x, model, perturbator = NULL, bins = NULL,
   }
   explainer$bins <- validate.bins(bins, predictorCount)
 
+  # Create discretized DF with removed target column
+  if (!is.null(explainer$target)) {
+    targetIndex <- which(colnames(x) == explainer$target)
+    if (length(targetIndex) != 1 && targetIndex < 0)
+      stop("Could not find unambiguous target column")
+
+    # Create discretized DF
+    explainer$discretizedDF <- discretize.data.frame(explainer$x[, -targetIndex],
+                                                     explainer$bins)
+  }
+
+
+  # Check perturbator
   if (is.null(perturbator))
     perturbator <- perturbTabular
   explainer$perturbator <- perturbator
@@ -50,8 +60,8 @@ anchors.data.frame <- function(x, model, perturbator = NULL, bins = NULL,
   explainer$coverage_perturbation_count = coverage_perturbation_count
 
   if (is.null(maxAnchors))
-    maxAnchors = ncol(explainer$trainingsData)-1 # target cannot be anchor
-  if (maxAnchors>=ncol(explainer$trainingsData))
+    maxAnchors = ncol(explainer$x)-1 # target cannot be anchor
+  if (maxAnchors>=ncol(explainer$x))
     BBmisc::stopf("You cannot have more anchors than features.")
   explainer$maxAnchors = maxAnchors
   explainer$beams = beams

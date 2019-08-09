@@ -1,3 +1,27 @@
+#' Title
+#'
+#' @param df
+#' @param bins
+#'
+#' @return
+#' @export
+#'
+#' @examples
+discretize.data.frame <- function(df, bins) {
+  discretize.column <- function(x, bin) {
+    return(sapply(x, function(v) provideBin(v, bin)))
+  }
+
+  for (i in 1:length(bins)) {
+    bin <- bins[[i]]
+    column <- df[, i]
+    df.column <- discretize.column(column, bin)
+    df[, i] <- df.column
+  }
+
+  return(df)
+}
+
 #' Creates an empty discretization which is also used as a default
 #'
 #' @param featureCount the number of features to create bins for
