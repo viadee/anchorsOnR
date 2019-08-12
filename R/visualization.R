@@ -225,34 +225,55 @@ plotExplanations <- function(explanations, featureNames = NULL, colPal = NULL, p
         # Find textposition
         positions=rep(2, length(cumToPlot[, ncol]))
 
+        widthOfLabels=strwidth(ifelse(
+          relevantBins == 0,
+          "",substr(
+            relevantBins,
+            start = nchar(colnames(precisionMatrix)) + 1,
+            stop = 100000
+          )))
+
+        yPositions=rep(p[ncol], length(cumToPlot[, ncol]))
         i=1
-        r=sapply(toPlot[, ncol], function(x){
-          if(x<0.05){
-            if(i>1 && positions[i-1]==3){
-              positions[i]<<-1
+        r=sapply(widthOfLabels, function(x){
+          if(x>toPlot[i, ncol]){
+            if(i>1 && yPositions[i-1]>p[ncol]){
+              yPositions[i]<<-p[ncol]-1/2*coverageMatrix[colnames(toPlot)[ncol], "coverageBin"]-par('mai')[1]/par('mar')[1]/2
             }else{
-              positions[i]<<-3
+
+              yPositions[i]<<-p[ncol]+1/2*coverageMatrix[colnames(toPlot)[ncol], "coverageBin"]+par('mai')[1]/par('mar')[1]/2
             }
           }
           i<<-i+1
         })
 
+
+        adaptedLabels=ifelse(
+          relevantBins == 0,
+          "",
+          ifelse(relevantBins=="base", "", ifelse(yPositions==p[ncol], substr(
+            relevantBins,
+            start = nchar(colnames(precisionMatrix)) + 1,
+            stop = 100000
+          ),ifelse(yPositions>p[ncol],paste(substr(
+            relevantBins,
+            start = nchar(colnames(precisionMatrix)) + 1,
+            stop = 100000
+          ),"v"), paste(substr(
+            relevantBins,
+            start = nchar(colnames(precisionMatrix)) + 1,
+            stop = 100000
+          ),"^")))
+
+        ))
+
         text(
           x = cumToPlot[, ncol],
-          y = p[ncol],
-          labels = ifelse(
-            relevantBins == 0,
-            "",
-            ifelse(relevantBins=="base", "", substr(
-              relevantBins,
-              start = nchar(colnames(precisionMatrix)) + 1,
-              stop = 100000
-            ))
-
-          ),
+          y = yPositions,
+          labels = adaptedLabels,
           cex = 1,
           pos = positions,
-          offset=ifelse(toPlot[,ncol]<0.1,3,0.5),
+          #offset=ifelse(toPlot[,ncol]<0.1,3,0.5),
           col=ifelse(toPlot[, ncol]>0.0001, "black", colPal)
         )
 
