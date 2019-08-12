@@ -29,10 +29,11 @@ bins[[4]] = list(cuts = c(0.1, 0.8666667, 1.6, 2.5))
 explainer = anchors(iris, model, target = "Species", bins = bins)
 
 # Construct the explanations
-explanations = explain(iris[100:102,], explainer)
+explanations = explain(iris[sample(nrow(iris),10),], explainer)
 
 # print explanations
 printExplanations(explainer, explanations)
 
 plotExplanations(explanations)
 plotExplanations(explanations, pdf="test.pdf")
+explanations[2, "feature_weight"]=0.2

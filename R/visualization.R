@@ -8,7 +8,7 @@
 #' @return the plot object
 plotExplanations <- function(explanations, featureNames = NULL, colPal = NULL, pdf=NULL) {
     if (is.null(featureNames))
-      featureNames = unique(explanations[, "feature"])
+      featureNames = c("base", unique(explanations[, "feature"]))
 
     precisionMatrix = matrix(rep(0, length(featureNames) * length(unique(explanations[, "case"]))), ncol =
                                length(featureNames))
@@ -24,6 +24,8 @@ plotExplanations <- function(explanations, featureNames = NULL, colPal = NULL, p
     bins = as.data.frame(precisionMatrix)
     minCovWidth=1.5*par('mai')[1]/par('mar')[1]
     maxCovWidth=2*minCovWidth
+    anyBelowZero=F
+    minimumBase=1
     sapply(colnames(precisionMatrix), function(featureName) {
       cases = unique(explanations[, "case"])
       sapply(cases, function(case) {
@@ -46,39 +48,53 @@ plotExplanations <- function(explanations, featureNames = NULL, colPal = NULL, p
           unique(explanations[explanations[, "case"] == case, "label"])
       })
       sapply(cases, function(case, featureName) {
-        if (featureName %in% explanations[explanations[, "case"] == case, "feature"]) {
+        if(featureName == "base"){
+          precisionMatrix[case, featureName] <<-
+            unique(explanations[explanations[, "case"] == case, "precision"])-
+            sum(explanations[explanations[, "case"] == case, "feature_weight"])
+          bins[case, featureName] <<- "base"
+          if(minimumBase>precisionMatrix[case, featureName])
+            minimumBase<<-precisionMatrix[case, featureName]
+        }else if (featureName %in% explanations[explanations[, "case"] == case, "feature"]) {
           precisionMatrix[case, featureName] <<-
             explanations[explanations[, "case"] == case &
                            explanations[, "feature"] == featureName, "feature_weight"]
+          if(precisionMatrix[case, featureName]<0){
+            precisionMatrix[case, featureName]<<-0.0001
+            anyBelowZero<<-T
+          }
           bins[case, featureName] <<-
             explanations[explanations[, "case"] == case &
                            explanations[, "feature"] == featureName, "feature_desc_short"]
         }
       }, featureName)
+
     })
 
 
+    if(anyBelowZero){
+      message("Negative added precision is visualized as 0.")
+    }
     prevPar = par(no.readonly = TRUE)
 
     if(!is.null(pdf)){
       pdf(file = pdf, paper="a4", width=8, height=11)
     }
-    par(mar = c(4, 4, 0, 2))
+    par(mar = c(4, 4, 0, 0))
     targetHeight=dev.size("in")[2]
 
     weightedCasesPerLabel=sapply(unique(explanations[, "label"]), function(label){
-
-      heightForColumns= length(which(coverageMatrix[,"label"]==label))*par('mai')[1]/par('mar')[1]
+      heightForColumns= length(which(coverageMatrix[,"label"]==label))*par('mai')[1]/par('mar')[1]- par('mai')[1]/par('mar')[1]/2
       return(sum(coverageMatrix[which(coverageMatrix[,"label"]==label),"coverageBin"])+heightForColumns)
     })
 
 
-    heightForLegend = par('mai')[1]/par('mar')[1]+ceiling(length(featureNames)/5)*par('mai')[1]/par('mar')[1]
-    heightPerCoveragePoint=(targetHeight-heightForLegend-par("mai")[1]*length(unique(explanations[, "label"]))*0.125-par("mai")[1]*0.875)/sum(weightedCasesPerLabel)
+    heightForLegend = 2*par('mai')[1]/par('mar')[1]+ceiling(length(featureNames)/5)*par('mai')[1]/par('mar')[1]
+    heightPerCoveragePoint=(targetHeight-heightForLegend-par("mai")[1]*length(unique(explanations[, "label"]))*0.75-par("mai")[1]*0.25)/sum(weightedCasesPerLabel)
 
 
-    heightWithPar = heightPerCoveragePoint*weightedCasesPerLabel+par("mai")[1]*0.125
-    heightWithPar[length(heightWithPar)]=heightWithPar[length(heightWithPar)]+par("mai")[1]*0.875
+    heightWithPar = heightPerCoveragePoint*weightedCasesPerLabel+par("mai")[1]*0.75
+    heightWithPar[length(heightWithPar)]=heightWithPar[length(heightWithPar)]+par("mai")[1]*0.25
     nf <-
       layout(matrix(1:(length(
         unique(explanations[, "label"])
@@ -103,18 +119,19 @@ plotExplanations <- function(explanations, featureNames = NULL, colPal = NULL, p
 
 
       if (i == length(unique(coverageMatrix[, "label"]))) {
-        par(mar = c(4, 4, 0, 2))
+        par(mar = c(4, 4, 0, 0))
+        spaces=c(par('mai')[1]/par('mar')[1]/mean(coverageMatrix[which(coverageMatrix[,"label"]==currentLabel),"coverageBin"])/2, rep(par('mai')[1]/par('mar')[1]/mean(coverageMatrix[which(coverageMatrix[,"label"]==currentLabel),"coverageBin"]), ncol(toPlot)-1))
         p = tryCatch({
           barplot(
             toPlot,
             width = coverageMatrix[colnames(toPlot), "coverageBin"],
             ylab = currentLabel,
             xlab = "Precision",
-            space=par('mai')[1]/par('mar')[1]/mean(coverageMatrix[which(coverageMatrix[,"label"]==currentLabel),"coverageBin"]),
+            space=spaces,
             col = colPal,
             horiz = TRUE,
             names.arg = colnames(toPlot),
-            xlim = c(0, 1.2),
+            xlim = c(ifelse(minimumBase>0.01, minimumBase-0.01, 0), 1.1),
             ylim = c(0,weightedCasesPerLabel[currentLabel]),
             xpd = F,
             axes = F
@@ -130,12 +147,13 @@ plotExplanations <- function(explanations, featureNames = NULL, colPal = NULL, p
         suppressWarnings(if(is.na(p)) return(NULL))
         axis(
           side = 1,
-          at = seq(0, 1.0, 0.2),
+          at = seq(0, 1.0, 0.1),
           labels = T,
           tick = T
         )
       } else{
-        par(mar = c(0.5, 4, 0, 2))
+        par(mar = c(3, 4, 0, 0))
+        spaces=c(par('mai')[1]/par('mar')[1]/mean(coverageMatrix[which(coverageMatrix[,"label"]==currentLabel),"coverageBin"])/2, rep(par('mai')[1]/par('mar')[1]/mean(coverageMatrix[which(coverageMatrix[,"label"]==currentLabel),"coverageBin"]), ncol(toPlot)-1))
         p=tryCatch({
         barplot(
           toPlot,
@@ -143,10 +161,10 @@ plotExplanations <- function(explanations, featureNames = NULL, colPal = NULL, p
           ylab = currentLabel,
           xlab = "",
           col = colPal,
-          space=par('mai')[1]/par('mar')[1]/mean(coverageMatrix[which(coverageMatrix[,"label"]==currentLabel),"coverageBin"]),
+          space=spaces,
           horiz = TRUE,
           names.arg = colnames(toPlot),
-          xlim = c(0, 1.2),
+          xlim = c(ifelse(minimumBase>0.01, minimumBase-0.01, 0), 1.1),
           ylim = c(0,weightedCasesPerLabel[currentLabel]),
           axes = F,
           xpd = F
@@ -188,21 +206,39 @@ plotExplanations <- function(explanations, featureNames = NULL, colPal = NULL, p
           relevantBins = relevantBins[ncol, ]
         }
 
+
+        # Find textposition
+        positions=rep(2, length(cumToPlot[, ncol]))
+        browser()
+        i=1
+        r=sapply(toPlot[, ncol], function(x){
+          if(x<0.05){
+            if(i>1 && positions[i-1]==3){
+              positions[i]<<-1
+            }else{
+              positions[i]<<-3
+            }
+          }
+          i<<-i+1
+        })
+
         text(
           x = cumToPlot[, ncol],
           y = p[ncol],
           labels = ifelse(
             relevantBins == 0,
             "",
-            substr(
+            ifelse(relevantBins=="base", "", substr(
               relevantBins,
               start = nchar(colnames(precisionMatrix)) + 1,
               stop = 100000
-            )
+            ))
+
           ),
           cex = 1,
-          pos = ifelse(toPlot[,ncol]<0.1,3,2),
+          pos = positions,
           offset=ifelse(toPlot[,ncol]<0.1,3,0.5),
+          col=ifelse(toPlot[, ncol]>0.0001, "black", colPal)
         )
 
         text(
