@@ -1,10 +1,6 @@
-# TODO remove all count variables
-
 initialize.explanation.request <- function(con, comm_id, column_count) {
   requestParams = list("id" = comm_id,
-                       "count" = 1,
                        "status" = "request",
-                       "precision" = 0,
                        "instance" = column_count)
 
   instanceJSON = as.character(jsonlite::toJSON(requestParams, auto_unbox = T))
@@ -31,7 +27,6 @@ await.server.response <- function(con) {
 
 respond.with.precision <- function(con, comm_id, matching_labels, precision) {
   responseList = list("id" = comm_id,
-                      "count" = 1,
                       "status" = "eval_response",
                       "matchingLabels" = matching_labels,
                       "precision" = precision)
@@ -41,7 +36,6 @@ respond.with.precision <- function(con, comm_id, matching_labels, precision) {
 
 respond.with.coverage <- function(con, comm_id, coverage) {
   responseList = list("id" = comm_id,
-                      "count" = 1,
                       "status" = "coverage_response",
                       "coverage" = coverage)
   coverageJSON = jsonlite::toJSON(responseList, auto_unbox = T)

@@ -34,5 +34,5 @@ explanations = explain(iris[100,], explainer)
 # print explanations
 printExplanations(explainer, explanations)
 
-plotExplanations(explanations)
+plotExplanations(explanations, explainer)
 
