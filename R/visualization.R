@@ -209,7 +209,7 @@ plotExplanations <- function(explanations, featureNames = NULL, colPal = NULL, p
 
         # Find textposition
         positions=rep(2, length(cumToPlot[, ncol]))
-        browser()
+
         i=1
         r=sapply(toPlot[, ncol], function(x){
           if(x<0.05){
