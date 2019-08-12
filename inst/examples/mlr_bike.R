@@ -18,7 +18,7 @@ prediction = predict(mod$learner.model, bike[, !names(bike) %in% "target"], type
 #length(which(prediction == bike$target)) / length(prediction)
 
 
-explainer = anchors(bike, mod, target = "target", tau = 0.8, batchSize = 1000, maxAnchors = 5)#, bins = bins)
+explainer = anchors(bike, mod, target = "target", tau = 0.8, batchSize = 1000, maxAnchors = 5, allowSuboptimalSteps = F)#, bins = bins)
 
 explained.instances = bike[sample(1:nrow(bike), 10),]
 explanation = explain(explained.instances, explainer)
