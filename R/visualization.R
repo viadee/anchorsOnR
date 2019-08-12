@@ -125,12 +125,12 @@ plotExplanations <- function(explanations, featureNames = NULL, colPal = NULL, p
           barplot(
             toPlot,
             width = coverageMatrix[colnames(toPlot), "coverageBin"],
-            ylab = currentLabel,
+            ylab =  paste("\'", currentLabel,"\'", "cases"),
             xlab = "Precision",
             space=spaces,
             col = colPal,
             horiz = TRUE,
-            names.arg = colnames(toPlot),
+            names.arg = rep("", length(colnames(toPlot))),
             xlim = c(ifelse(minimumBase>0.01, minimumBase-0.01, 0), 1.1),
             ylim = c(0,weightedCasesPerLabel[currentLabel]),
             xpd = F,
@@ -151,6 +151,13 @@ plotExplanations <- function(explanations, featureNames = NULL, colPal = NULL, p
           labels = T,
           tick = T
         )
+        axis(
+          side = 2,
+          at = p,
+          labels = colnames(toPlot),
+          tick = F,
+          las=1
+        )
       } else{
         par(mar = c(3, 4, 0, 0))
         spaces=c(par('mai')[1]/par('mar')[1]/mean(coverageMatrix[which(coverageMatrix[,"label"]==currentLabel),"coverageBin"])/2, rep(par('mai')[1]/par('mar')[1]/mean(coverageMatrix[which(coverageMatrix[,"label"]==currentLabel),"coverageBin"]), ncol(toPlot)-1))
@@ -158,12 +165,12 @@ plotExplanations <- function(explanations, featureNames = NULL, colPal = NULL, p
         barplot(
           toPlot,
           width = coverageMatrix[colnames(toPlot), "coverageBin"],
-          ylab = currentLabel,
+          ylab = paste("\'", currentLabel,"\'", "cases"),
           xlab = "",
           col = colPal,
           space=spaces,
           horiz = TRUE,
-          names.arg = colnames(toPlot),
+          names.arg = rep("", length(colnames(toPlot))),
           xlim = c(ifelse(minimumBase>0.01, minimumBase-0.01, 0), 1.1),
           ylim = c(0,weightedCasesPerLabel[currentLabel]),
           axes = F,
@@ -175,6 +182,14 @@ plotExplanations <- function(explanations, featureNames = NULL, colPal = NULL, p
           dev.off()
           return(NA)
         })
+
+        axis(
+          side = 2,
+          at = p,
+          labels = colnames(toPlot),
+          tick = F,
+          las=1
+        )
 
         suppressWarnings(if(is.na(p)) return(NULL))
       }
@@ -242,7 +257,8 @@ plotExplanations <- function(explanations, featureNames = NULL, colPal = NULL, p
         )
 
         text(
-          x = cumToPlot[nrow(cumToPlot), ncol],
+          #x = cumToPlot[nrow(cumToPlot), ncol],
+          x=1,
           y = p[ncol],
           labels = paste("Cov:", coverageMatrix[colnames(cumToPlot)[ncol], "coverage"]),
           cex = 1,
