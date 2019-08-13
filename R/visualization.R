@@ -6,6 +6,7 @@
 #' @param pdf whether output should be pdf
 #'
 #' @return the plot object
+#' @export
 plotExplanations <- function(explanations, featureNames = NULL, colPal = NULL, pdf=NULL) {
     if (is.null(featureNames))
       featureNames = c("base", unique(explanations[, "feature"]))
