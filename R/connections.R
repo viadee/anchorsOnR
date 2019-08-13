@@ -30,7 +30,8 @@ shutdown <- function(control = NULL){
 #' @param startAnchors (Optional) A \code{logical} value indicating whether to try to start Anchors from R if no connection with Anchors is detected. This is only possible if \code{ip = "localhost"} or \code{ip = "127.0.0.1"}.  If an existing connection is detected, R does not start Anchors.
 #' @return this method will load it and return a socketConnection
 #' @export
-initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, startAnchors = TRUE, explainer = NULL) {
+initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_,
+                        startAnchors = TRUE, explainer = NULL) {
 
   if(!is.character(ip) || length(ip) != 1L || is.na(ip) || !nzchar(ip))
     stop("`ip` must be a non-empty character string")
@@ -55,7 +56,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
     if (ip == "localhost" || ip == "127.0.0.1"){
       message("\nAnchors is not running yet, starting it now...\n")
       stdout <- .anchors.getTmpFile("stdout")
-      .anchors.startJar(ip = ip, port = port, name = name, stdout = stdout)
+      .anchors.startJar(ip = ip, port = port, name = name, stdout = stdout, explainer = explainer)
 
       message("Starting Anchors JVM and connecting: ")
       Sys.sleep(1L)
@@ -123,7 +124,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_, sta
 .anchors.startJar <- function(ip = "localhost", port = NULL, name = NULL, nthreads = -1,
                               max_memory = NULL, min_memory = NULL,
                               forceDL = FALSE, extra_classpath = NULL,
-                              stdout) {
+                              stdout, explainer = NULL) {
 
   command <- .anchors.checkJava()
 
