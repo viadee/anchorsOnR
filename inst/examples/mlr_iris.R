@@ -26,10 +26,10 @@ bins[[3]] = list(cuts = c(1, 2.633333, 4.9, 6.9))
 bins[[4]] = list(cuts = c(0.1, 0.8666667, 1.6, 2.5))
 
 # Prepare explainer to explain model with anchors
-explainer = anchors(iris, model, target = "Species", bins = bins)
+explainer = anchors(iris, model, target = "Species", bins = bins, tau = 1)
 
 # Construct the explanations
-explanations = explain(iris[sample(nrow(iris),10),], explainer)
+explanations = explain(iris[sample(nrow(iris),1),], explainer)
 
 # print explanations
 printExplanations(explainer, explanations)

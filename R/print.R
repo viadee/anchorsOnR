@@ -26,17 +26,26 @@ printExplanations <- function(explainer, explanations){
     #}
     #cat(paste("WITH LABEL", names(explainer$feature_type)[explainer$target], "=", paste0("'",unique(case[,"label"]),"'")), sep = "\n")
     cat("====Result====", sep = "\n")
-    for(j in seq_along(rownames(case))){
-      if (j == 1){
-        if (length(seq_along(rownames(case))) == j){
-          cat(paste("IF", case[j, "feature_desc"], "(ADDED PRECISION:", paste0(case[j, "feature_weight"],", ADDED COVERAGE: ",case[j, "added_coverage"],")")), sep = "\n")
+
+    # Empty rule removed
+    actual_case <- case[case$feature != "base",]
+
+    if (nrow(actual_case) == 0) {
+      cat("IF [empty rule] \n")
+    } else {
+
+      for(j in seq_along(rownames(actual_case))){
+        if (j == 1){
+          if (length(seq_along(rownames(actual_case))) == j){
+            cat(paste("IF", actual_case[j, "feature_desc"], "(ADDED PRECISION:", paste0(actual_case[j, "feature_weight"],", ADDED COVERAGE: ",actual_case[j, "added_coverage"],")")), sep = "\n")
+          } else {
+            cat(paste("IF", actual_case[j, "feature_desc"], "(ADDED PRECISION:", paste0(actual_case[j, "feature_weight"],", ADDED COVERAGE: ",actual_case[j, "added_coverage"],")"), "AND"), sep = "\n")
+          }
+        } else if (j > 1 && j < nrow(actual_case)){
+          cat(paste(actual_case[j, "feature_desc"], "(ADDED PRECISION:", paste0(actual_case[j, "feature_weight"],", ADDED COVERAGE: ",actual_case[j, "added_coverage"],")"),  "AND"), sep = "\n")
         } else {
-          cat(paste("IF", case[j, "feature_desc"], "(ADDED PRECISION:", paste0(case[j, "feature_weight"],", ADDED COVERAGE: ",case[j, "added_coverage"],")"), "AND"), sep = "\n")
+          cat(paste(actual_case[j, "feature_desc"], "(ADDED PRECISION:", paste0(actual_case[j, "feature_weight"],", ADDED COVERAGE: ",actual_case[j, "added_coverage"],")")),  sep = "\n");
         }
-      } else if (j > 1 && j < nrow(case)){
-        cat(paste(case[j, "feature_desc"], "(ADDED PRECISION:", paste0(case[j, "feature_weight"],", ADDED COVERAGE: ",case[j, "added_coverage"],")"),  "AND"), sep = "\n")
-      } else {
-        cat(paste(case[j, "feature_desc"], "(ADDED PRECISION:", paste0(case[j, "feature_weight"],", ADDED COVERAGE: ",case[j, "added_coverage"],")")),  sep = "\n");
       }
     }
     predictOutput=paste("THEN PREDICT", paste0("'",unique(case$label),"'"))

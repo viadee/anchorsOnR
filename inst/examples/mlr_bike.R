@@ -30,9 +30,9 @@ bins = list(
   integer()
 )
 
-explainer = anchors(bike, mod, target = "target", bins = bins, tau = 0.8, batchSize = 1000)
+explainer = anchors(bike, mod, target = "target", bins = bins, tau = 0.85, batchSize = 1000)
 
-explained.instances = bike[sample(1:nrow(bike), 5),]
+explained.instances = bike[sample(1:nrow(bike), 4),]
 explanation = explain(explained.instances, explainer)
 
 printExplanations(explainer, explanation)

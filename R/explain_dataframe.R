@@ -196,9 +196,21 @@ explain.data.frame <- function(x, explainer, labels = NULL,
         short=T
       )
 
+      ridx = 1 + nrow(explanations)
+      explanations[ridx, "model_type"] = "Classification"
+      explanations[ridx, "case"] = rownames(instance)
+      explanations[ridx, "label"] = as.character(labels[i])
+      explanations[ridx, "label_prob"] = rules$precision
+      explanations[ridx, "feature"] = "base"
+      explanations[ridx, "feature_weight"] = rules$precision - sum(unlist(featuresWeight))
+      explanations[ridx, "added_coverage"] = 0
+      explanations[ridx, "data"] = collapse(unlist(instance))
+      explanations[ridx, "precision"] = rules$precision
+      explanations[ridx, "coverage"] = rules$coverage
+
       for (j in names(featuresText)) {
         ridx = 1 + nrow(explanations)
-        explanations[ridx, "model_type"] = "Classification" #explainer$model$task.desc$type
+        explanations[ridx, "model_type"] = "Classification"
         explanations[ridx, "case"] = rownames(instance)
         explanations[ridx, "label"] = as.character(labels[i]) # TODO why doesn't factor "survive"?
         explanations[ridx, "label_prob"] = rules$precision

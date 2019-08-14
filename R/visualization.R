@@ -6,10 +6,12 @@
 #' @param pdf whether output should be pdf
 #'
 #' @return the plot object
+#'
 #' @export
 plotExplanations <- function(explanations, featureNames = NULL, colPal = NULL, pdf=NULL) {
-    if (is.null(featureNames))
-      featureNames = c("base", unique(explanations[, "feature"]))
+    if (is.null(featureNames)) {
+      featureNames = unique(explanations[, "feature"])
+    }
 
     precisionMatrix = matrix(rep(0, length(featureNames) * length(unique(explanations[, "case"]))), ncol =
                                length(featureNames))
@@ -49,14 +51,15 @@ plotExplanations <- function(explanations, featureNames = NULL, colPal = NULL, p
           unique(explanations[explanations[, "case"] == case, "label"])
       })
       sapply(cases, function(case, featureName) {
-        if(featureName == "base"){
-          precisionMatrix[case, featureName] <<-
-            unique(explanations[explanations[, "case"] == case, "precision"])-
-            sum(explanations[explanations[, "case"] == case, "feature_weight"])
-          bins[case, featureName] <<- "base"
-          if(minimumBase>precisionMatrix[case, featureName])
-            minimumBase<<-precisionMatrix[case, featureName]
-        }else if (featureName %in% explanations[explanations[, "case"] == case, "feature"]) {
+        #if(featureName == "base"){
+        #  precisionMatrix[case, featureName] <<-
+        #    unique(explanations[explanations[, "case"] == case, "precision"])-
+        #    sum(explanations[explanations[, "case"] == case, "feature_weight"])
+        #  bins[case, featureName] <<- "base"
+        #  if(minimumBase>precisionMatrix[case, featureName])
+        #    minimumBase<<-precisionMatrix[case, featureName]
+        #}else
+        if (featureName %in% explanations[explanations[, "case"] == case, "feature"]) {
           precisionMatrix[case, featureName] <<-
             explanations[explanations[, "case"] == case &
                            explanations[, "feature"] == featureName, "feature_weight"]
@@ -64,9 +67,15 @@ plotExplanations <- function(explanations, featureNames = NULL, colPal = NULL, p
             precisionMatrix[case, featureName]<<-0.0001
             anyBelowZero<<-T
           }
-          bins[case, featureName] <<-
-            explanations[explanations[, "case"] == case &
-                           explanations[, "feature"] == featureName, "feature_desc_short"]
+          if(featureName == "base"){
+            bins[case, featureName] <<- "base"
+            if(minimumBase>precisionMatrix[case, featureName])
+                minimumBase<<-precisionMatrix[case, featureName]
+          } else {
+            bins[case, featureName] <<-
+              explanations[explanations[, "case"] == case &
+                             explanations[, "feature"] == featureName, "feature_desc_short"]
+          }
         }
       }, featureName)
 
@@ -110,7 +119,11 @@ plotExplanations <- function(explanations, featureNames = NULL, colPal = NULL, p
 
     for (i in 1:length(unique(coverageMatrix[, "label"]))) {
       currentLabel =  unique(coverageMatrix[, "label"])[i]
+
       toPlot = t(precisionMatrix[coverageMatrix[, "label"] == currentLabel, ])
+      # In some cases (especially when length = 1), colnames will not be set
+      if (is.null(colnames(toPlot)))
+        colnames(toPlot) = rownames(precisionMatrix)
 
       if (nrow(toPlot) == 1 && ncol(precisionMatrix)>1) {
         toPlot = matrix(toPlot)
@@ -314,3 +327,4 @@ plotExplanations <- function(explanations, featureNames = NULL, colPal = NULL, p
   }
 
   }
+
