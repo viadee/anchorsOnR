@@ -33,9 +33,9 @@ printInstance <- function(i, explainer, explanations){
 printRule <- function(i, explainer, explanations){
 
   explanations$feature_weight = explanations$feature_weight * 100
-  explanations$added_coverage = explanations$added_coverage*100
-  explanations$precision = explanations$precision*100
-  explanations$coverage = explanations$coverage*100
+  explanations$added_coverage = explanations$added_coverage * 100
+  explanations$precision = explanations$precision * 100
+  explanations$coverage = explanations$coverage * 100
 
   if (explainer$verbose == FALSE){
     explanations$feature_weight = round(explanations$feature_weight, 2)
