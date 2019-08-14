@@ -225,6 +225,8 @@ explain.data.frame <- function(x, explainer, labels = NULL,
         explanations[ridx, "coverage"] = rules$coverage
       }
 
+      class(explanations) = c("explanations", class(explanations))
+
       rules = append(rules, list(response$anchorResult[[1]]))
     } else {
       stopf(

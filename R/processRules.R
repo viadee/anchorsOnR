@@ -28,7 +28,7 @@ getFeatureText <- function(candidates, feature, instance, dataset, bins, short=F
       if(short && is.numeric(providedBin)){
         featureDesc = paste(colnames(dataset)[feature+1], "=", round(providedBin, 3))
       }else{
-        featureDesc = paste(colnames(dataset)[feature+1], "=", providedBin)
+        featureDesc = paste(colnames(dataset)[feature+1], "=", unlist(instance[feature+1]))
       }
 
     }

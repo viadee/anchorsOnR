@@ -4,7 +4,8 @@
 \alias{perturbate}
 \title{Perturbate an instance}
 \usage{
-perturbate(perturbationFun, dataset, bins, instance, anchors, p)
+perturbate(perturbationFun, dataset, discretized_dataset, instance,
+  discretized_instance, anchors, p)
 }
 \arguments{
 \item{perturbationFun}{defines how the instances is perturbated. Usually, you
@@ -12,9 +13,11 @@ will use \code{\link{makeTabularPerturbator}} to create a perturbation operator}
 
 \item{dataset}{the dataset from which perturbations will be drawn}
 
-\item{bins}{the bins of the discretized dataset}
+\item{discretized_dataset}{the discretized dataset}
 
-\item{instance}{the instance to be perturbated}
+\item{instance}{the instance to be perturbed}
+
+\item{discretized_instance}{the discretized version of the instance}
 
 \item{anchors}{indizes of features that will not be perturbated}
 

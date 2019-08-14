@@ -2,18 +2,28 @@
 % Please edit documentation in R/print.R
 \name{printExplanations}
 \alias{printExplanations}
-\title{Prints a human readable IF-THEN sequence for all explanations}
+\title{#' Prints a human readable IF-THEN sequence for all explanations
+#'
+#' This function prints a set of IF-THEN rules for each explanation.
+#'
+#' @param explainer An `explainer` as returned by [anchors()].
+#' @param explanation An `explanations` object as returned by [explain()].
+#'
+#' @return Prints a set of rules
+#'
+#' @export}
 \usage{
 printExplanations(explainer, explanations)
 }
-\arguments{
-\item{explainer}{A `` as returned by [anchors()].}
-
-\item{explanation}{A `data.frame` as returned by [explain()].}
-}
-\value{
-Prints a set of rules
-}
 \description{
-This function prints a set of IF-THEN rules for each explanation.
+#' Prints a human readable IF-THEN sequence for all explanations
+#'
+#' This function prints a set of IF-THEN rules for each explanation.
+#'
+#' @param explainer An `explainer` as returned by [anchors()].
+#' @param explanation An `explanations` object as returned by [explain()].
+#'
+#' @return Prints a set of rules
+#'
+#' @export
 }

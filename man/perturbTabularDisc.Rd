@@ -6,18 +6,20 @@
 \alias{perturbTabularDisc}
 \title{Tabular perturbator}
 \usage{
-perturbTabular(dataset, bins, instance, anchors, p, ...)
+perturbTabular(dataset, discretized_dataset, instance,
+  discretized_instance, anchors, p, ...)
 
-perturbTabularDisc(dataset, bins, instance, anchors, p, ...)
+perturbTabularDisc(dataset, discretized_dataset, instance,
+  discretized_instance, anchors, p, ...)
 }
 \arguments{
 \item{dataset}{the dataset from which perturbations will be drawn}
 
-\item{bins}{the bins of the discretized dataset}
+\item{discretized_dataset}{the discretized dataset}
 
-\item{instance}{the instance to be perturbated}
+\item{instance}{the instance to be perturbed}
 
-\item{anchors}{indizes of features that will not be perturbated}
+\item{discretized_instance}{the discretized version of the instance}
 
 \item{p}{possibility of an a feature to be perturbated. Anchors are not perturbated.}
 
