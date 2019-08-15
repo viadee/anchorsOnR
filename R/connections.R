@@ -179,6 +179,10 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_,
   args <- c(args, "-jar", jar_file)
   args <- c(args, "-port", port)
 
+  # Time in seconds. Small numbers should be enough so the JVM automatically powers off,
+  # when explanation killed by ESC
+  args <- c(args, "-timeout", 3)
+
   args <- c(args, "-maxAnchorSize", explainer$maxAnchors)
   args <- c(args, "-beamSize", explainer$beams)
   args <- c(args, "-delta", explainer$delta)

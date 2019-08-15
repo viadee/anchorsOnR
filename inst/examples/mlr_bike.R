@@ -18,7 +18,8 @@ bins = list(
   integer(),
   integer(),
   integer(),
-  integer(),
+  list(c("SAT", "SUN"), c("MON", "TUE"), c("WED", "THU", "FRI")),
+  #integer(),
   integer(),
   integer(),
   # temp

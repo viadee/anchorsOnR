@@ -88,6 +88,8 @@ validate.bins <- function(bins, length) {
     if (is.null(bin)) {
       stop("Indexes must range from 0 to length(features)")
     }
+
+
     if (is.numeric(bin)) {
       newBin <- list()
       if (length(bin) > 0) {
@@ -97,7 +99,14 @@ validate.bins <- function(bins, length) {
         newBin$doDiscretize = F
       }
       bin <- newBin
+    } else if (is.list(bin) && is.null(names(bin)) && length(bin) >= 1) {
+      newBin <- list()
+      newBin$numeric <- F
+      newBin$classes <- bin
+      bin <- newBin
     }
+
+
     if (length(which(!(
       names(bin) %in% c("doDiscretize", "numeric", "classes", "cuts", "right")
     ))) > 0)
@@ -118,7 +127,7 @@ validate.bins <- function(bins, length) {
         bin$numeric <- F
     }
 
-    if (is.null(bin$right))
+    if (is.null(bin$right) && bin$numeric == T)
       bin$right <- F
 
     if (bin$numeric == T) {
@@ -150,12 +159,12 @@ provideBin <- function(value, bin) {
 
   if (!bin$numeric) {
     i = 1
-    while (!(value %in% bin[[i]])) {
+    while (!(value %in% bin$classes[[i]])) {
+      if (is.null(bin$classes[[i]]))
+        stop("All categorical classes need to be specified")
       i = i + 1
     }
-    if (value %in% bin[[i]])
-      return(i)
-    stop("All categorical classes need to be specified")
+    return(i)
   }
   else {
     i = 1
