@@ -188,6 +188,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_,
   args <- c(args, "-initSampleCount", explainer$initSamples)
   args <- c(args, "-allowSuboptimalSteps", tolower(as.character(explainer$allowSuboptimalSteps)))
   args <- c(args, "-batchSize", explainer$batchSize)
+  args <- c(args, "-emptyEval", explainer$emptyRuleEvaluations)
 
    message(        "Note:  In case of errors look at the following log files:")
    message(sprintf("    %s", stdout))

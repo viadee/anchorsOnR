@@ -29,6 +29,7 @@
 #' argument has practical advantages.
 #' @param allowSuboptimalSteps if set to false, candidates that are returned by the best arm identification get
 #' removed when their precision is lower than their parent's
+#' @param emptyRuleEvaluations the number of evaluations to perform for the empty rule
 #' @param verbose anchors will print abbreviated information and round after 4 digits. Set verbose to `TRUE` to increase information load. Default: `FALSE`
 #'
 #' @param ... Arguments passed on to methods
@@ -42,7 +43,8 @@ anchors <- function(x, model, perturbator = NULL, bins = NULL,
                     p = 0.5, coverage_perturbation_count = 1000,
                     target = NULL, maxAnchors = NULL, beams = 2L,
                     delta = 0.1, epsilon = 0.1, tau = 0.9, tauDiscrepancy = 0.05,
-                    initSamples = 10L, allowSuboptimalSteps = TRUE, batchSize = 100L, verbose = FALSE, ...) {
+                    initSamples = 10L, allowSuboptimalSteps = TRUE, batchSize = 100L,
+                    emptyRuleEvaluations = 100L, verbose = FALSE, ...) {
   UseMethod('anchors', x)
 }
 

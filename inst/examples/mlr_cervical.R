@@ -46,7 +46,7 @@ bins = list(
 # Explain model with anchors
 explainer = anchors(cervical, mod, tau = 0.5, bins = bins)
 
-explanation = explain(cervical[c(1,7),], explainer, labels = c("Healthy", "Cancer")) #326
+explanation = explain(cervical[c(1),], explainer, labels = c("Healthy"))#, "Cancer")) #326
 
 # Print explanations
 printExplanations(explainer, explanation)
