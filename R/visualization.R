@@ -8,7 +8,10 @@
 #' @return the plot object
 #'
 #' @export
-plotExplanations <- function(explanations, featureNames = NULL, colPal = NULL, pdf=NULL) {
+plotExplanations <- function(explanations,
+                             featureNames = NULL,
+                             colPal = c("#555555","#DFAD47","#7EBCA9", "#E5344E", "#681885", "#d25d97", "#fd3c46", "#ff9a39", "#6893bf", "#42c3a8"),
+                             pdf=NULL) {
     if (is.null(featureNames)) {
       featureNames = unique(explanations[, "feature"])
     }
