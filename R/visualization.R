@@ -85,6 +85,7 @@ plotExplanations <- function(explanations,
     })
 
 
+
     if(anyBelowZero){
       message("Negative added precision is visualized as 0.")
     }
@@ -102,7 +103,8 @@ plotExplanations <- function(explanations,
     })
 
 
-    heightForLegend = 2*par('mai')[1]/par('mar')[1]+ceiling(length(featureNames)/5)*par('mai')[1]/par('mar')[1]
+    numberOfFeaturesInOneLegenRow = floor(dev.size("in")[1]/max(strwidth(featureNames, units="inches")))-1
+    heightForLegend = 2*par('mai')[1]/par('mar')[1]+ceiling(length(featureNames)/numberOfFeaturesInOneLegenRow)*par('mai')[1]/par('mar')[1]
     heightPerCoveragePoint=(targetHeight-heightForLegend-par("mai")[1]*length(unique(explanations[, "label"]))*0.75-par("mai")[1]*0.25)/sum(weightedCasesPerLabel)
 
 
@@ -135,6 +137,9 @@ plotExplanations <- function(explanations,
       }
 
 
+      maximumPrecisionConsideringNegative = max(apply(precisionMatrix, 1, sum))
+
+
       if (i == length(unique(coverageMatrix[, "label"]))) {
         par(mar = c(4, 4, 0, 0))
         spaces=c(par('mai')[1]/par('mar')[1]/mean(coverageMatrix[which(coverageMatrix[,"label"]==currentLabel),"coverageBin"])/2, rep(par('mai')[1]/par('mar')[1]/mean(coverageMatrix[which(coverageMatrix[,"label"]==currentLabel),"coverageBin"]), ncol(toPlot)-1))
@@ -148,7 +153,7 @@ plotExplanations <- function(explanations,
             col = colPal,
             horiz = TRUE,
             names.arg = rep("", length(colnames(toPlot))),
-            xlim = c(ifelse(minimumBase>0.01, minimumBase-0.01, 0), 1.1),
+            xlim = c(ifelse(minimumBase>0.01, minimumBase-0.01, 0), min(maximumPrecisionConsideringNegative+0.1, maximumPrecisionConsideringNegative+((maximumPrecisionConsideringNegative-ifelse(minimumBase>0.01, minimumBase-0.01, 0))/5))),
             ylim = c(0,weightedCasesPerLabel[currentLabel]),
             xpd = F,
             axes = F
@@ -164,7 +169,7 @@ plotExplanations <- function(explanations,
         suppressWarnings(if(is.na(p)) return(NULL))
         axis(
           side = 1,
-          at = seq(0, 1.0, 0.1),
+          at = c(ifelse(minimumBase>0.01, minimumBase-0.01, 0),seq(0, 1.0, 0.1)),
           labels = T,
           tick = T
         )
@@ -188,7 +193,7 @@ plotExplanations <- function(explanations,
           space=spaces,
           horiz = TRUE,
           names.arg = rep("", length(colnames(toPlot))),
-          xlim = c(ifelse(minimumBase>0.01, minimumBase-0.01, 0), 1.1),
+          xlim = c(ifelse(minimumBase>0.01, minimumBase-0.01, 0), min(maximumPrecisionConsideringNegative+0.1, maximumPrecisionConsideringNegative+((maximumPrecisionConsideringNegative-ifelse(minimumBase>0.01, minimumBase-0.01, 0))/5))),
           ylim = c(0,weightedCasesPerLabel[currentLabel]),
           axes = F,
           xpd = F
@@ -250,39 +255,58 @@ plotExplanations <- function(explanations,
             stop = 100000
           )))
 
+
         yPositions=rep(p[ncol], length(cumToPlot[, ncol]))
         i=1
         r=sapply(widthOfLabels, function(x){
           if(x>toPlot[i, ncol]){
-            if(i>1 && yPositions[i-1]>p[ncol]){
-              yPositions[i]<<-p[ncol]-1/2*coverageMatrix[colnames(toPlot)[ncol], "coverageBin"]-par('mai')[1]/par('mar')[1]/2
-            }else{
+            if((i>2 && yPositions[i-1]<p[ncol]) || (i>2 && widthOfLabels[i-1]==0 && yPositions[i-2]<p[ncol])){
+              yPositions[i]<<-p[ncol]+1/2*coverageMatrix[colnames(toPlot)[ncol], "coverageBin"]+max(strheight(relevantBins))
 
-              yPositions[i]<<-p[ncol]+1/2*coverageMatrix[colnames(toPlot)[ncol], "coverageBin"]+par('mai')[1]/par('mar')[1]/2
+            }else if(i>1 && yPositions[i-1]<p[ncol]){
+              yPositions[i]<<-p[ncol]+1/2*coverageMatrix[colnames(toPlot)[ncol], "coverageBin"]+max(strheight(relevantBins))
+
+            }else{
+              yPositions[i]<<-p[ncol]-1/2*coverageMatrix[colnames(toPlot)[ncol], "coverageBin"]-max(strheight(relevantBins))
+
             }
           }
           i<<-i+1
         })
 
 
-        adaptedLabels=ifelse(
-          relevantBins == 0,
-          "",
-          ifelse(relevantBins=="base", "", ifelse(yPositions==p[ncol], substr(
-            relevantBins,
-            start = nchar(colnames(precisionMatrix)) + 1,
+        adaptedLabels= sapply(1:length(relevantBins), function(binNo){
+          if(relevantBins[binNo]==0 || relevantBins[binNo] =="base") return("")
+          if(yPositions[binNo]==p[ncol]) return(paste0(substr(
+            relevantBins[binNo],
+            start = nchar(colnames(precisionMatrix)[binNo]) + 1,
             stop = 100000
-          ),ifelse(yPositions>p[ncol],paste(substr(
-            relevantBins,
-            start = nchar(colnames(precisionMatrix)) + 1,
-            stop = 100000
-          ),"v"), paste(substr(
-            relevantBins,
-            start = nchar(colnames(precisionMatrix)) + 1,
-            stop = 100000
-          ),"^")))
+          ),"  "))
 
-        ))
+          if(yPositions[binNo]>p[ncol] && toPlot[, ncol][binNo]>0.001) return (paste(substr(
+            relevantBins[binNo],
+            start = nchar(colnames(precisionMatrix)[binNo]) + 1,
+            stop = 100000
+          ),"\U02C5 "))
+
+          if(yPositions[binNo]>p[ncol]) return (paste(substr(
+            relevantBins[binNo],
+            start = nchar(colnames(precisionMatrix)[binNo]) + 1,
+            stop = 100000
+          ),"\U02C5"))
+
+          if(toPlot[, ncol][binNo]>0.001) return (paste(substr(
+            relevantBins[binNo],
+            start = nchar(colnames(precisionMatrix)[binNo]) + 1,
+            stop = 100000
+          ),"\U02C4 "))
+
+          return (paste(substr(
+            relevantBins[binNo],
+            start = nchar(colnames(precisionMatrix)[binNo]) + 1,
+            stop = 100000
+          ),"\U02C4"))
+        })
 
         text(
           x = cumToPlot[, ncol],
@@ -290,13 +314,13 @@ plotExplanations <- function(explanations,
           labels = adaptedLabels,
           cex = 1,
           pos = positions,
-          #offset=ifelse(toPlot[,ncol]<0.1,3,0.5),
+          offset=-0.25,
           col=ifelse(toPlot[, ncol]>0.0001, "black", colPal)
         )
 
         text(
           #x = cumToPlot[nrow(cumToPlot), ncol],
-          x=1,
+          x=maximumPrecisionConsideringNegative+0.0001,
           y = p[ncol],
           labels = paste("Cov:", coverageMatrix[colnames(cumToPlot)[ncol], "coverage"]),
           cex = 1,
@@ -308,21 +332,19 @@ plotExplanations <- function(explanations,
 
     }
 
+  #Plot the legend
 
     par(mar = c(0,0,0,0))
     plot(NULL , xaxt = 'n', yaxt = 'n', bty = 'n', ylab = '', xlab = '', xlim = 0:1, ylim = 0:1)
-
+browser()
     legend(
-      "bottom",
+      "center",
       legend = featureNames,
       fill = colPal,
       xpd = TRUE,
       inset = c(0, 0),
-      ncol = ifelse(
-        length(featureNames) > 5,
-        5,
-        length(featureNames)
-      )
+      ncol = min(length(featureNames), numberOfFeaturesInOneLegenRow),
+      x.intersp = 0.3
     )
 
     if(!is.null(pdf)){ dev.off()}else{
