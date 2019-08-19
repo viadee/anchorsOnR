@@ -118,8 +118,9 @@ validate.bins <- function(bins, length) {
 
     if (is.null(bin$numeric)) {
       if ((is.null(bin$cuts) && is.null(bin$classes)) ||
-          (!is.null(bin$cuts) && !is.null(bin$classes)))
+          (!is.null(bin$cuts) && !is.null(bin$classes))) {
         stop("Either classes or cuts have to be provided")
+      }
 
       if (!is.null(bin$cuts))
         bin$numeric <- T
@@ -155,6 +156,10 @@ provideBin <- function(value, bin) {
   # If discretization is disabled return value
   if (!is.null(bin$doDiscretize) && !bin$doDiscretize) {
     return(value)
+  }
+
+  if (is.data.frame(value)) {
+    value <- value[[1]]
   }
 
   if (!bin$numeric) {
