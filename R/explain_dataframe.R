@@ -196,7 +196,6 @@ explain.data.frame <- function(x, explainer, labels = NULL,
         short=T
       )
 
-      browser()
       ridx = 1 + nrow(explanations)
       explanations[ridx, "model_type"] = "Classification"
       explanations[ridx, "case"] = rownames(instance)
