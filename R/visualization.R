@@ -3,6 +3,7 @@
 #' @param explanations the explanation result
 #' @param featureNames the featureNames
 #' @param colPal the color pallet
+#' @param adjColorTransparent the transparency of the colors (alpha)
 #' @param pdf whether output should be pdf
 #'
 #' @return the plot object
@@ -11,6 +12,7 @@
 plotExplanations <- function(explanations,
                              featureNames = NULL,
                              colPal = c("#555555","#DFAD47","#7EBCA9", "#E5344E", "#681885", "#d25d97", "#fd3c46", "#ff9a39", "#6893bf", "#42c3a8"),
+                             adjColorTransparent = 0.6,
                              pdf=NULL) {
     if (is.null(featureNames)) {
       featureNames = unique(explanations[, "feature"])
@@ -150,7 +152,7 @@ plotExplanations <- function(explanations,
             ylab =  paste("\'", currentLabel,"\'", "cases"),
             xlab = "Precision",
             space=spaces,
-            col = colPal,
+            col =  adjustcolor(colPal,  alpha.f=adjColorTransparent),
             horiz = TRUE,
             names.arg = rep("", length(colnames(toPlot))),
             xlim = c(ifelse(minimumBase>0.01, minimumBase-0.01, 0), min(maximumPrecisionConsideringNegative+0.1, maximumPrecisionConsideringNegative+((maximumPrecisionConsideringNegative-ifelse(minimumBase>0.01, minimumBase-0.01, 0))/5))),
@@ -189,7 +191,7 @@ plotExplanations <- function(explanations,
           width = coverageMatrix[colnames(toPlot), "coverageBin"],
           ylab = paste("\'", currentLabel,"\'", "cases"),
           xlab = "",
-          col = colPal,
+          col = adjustcolor(colPal,  alpha.f=adjColorTransparent),
           space=spaces,
           horiz = TRUE,
           names.arg = rep("", length(colnames(toPlot))),
@@ -315,7 +317,7 @@ plotExplanations <- function(explanations,
           cex = 1,
           pos = positions,
           offset=-0.25,
-          col=ifelse(toPlot[, ncol]>0.0001, "black", colPal)
+          col=ifelse(yPositions==p[ncol], "black", colPal)
         )
 
         text(
@@ -336,11 +338,11 @@ plotExplanations <- function(explanations,
 
     par(mar = c(0,0,0,0))
     plot(NULL , xaxt = 'n', yaxt = 'n', bty = 'n', ylab = '', xlab = '', xlim = 0:1, ylim = 0:1)
-browser()
+
     legend(
       "center",
       legend = featureNames,
-      fill = colPal,
+      fill = adjustcolor(colPal,  alpha.f=adjColorTransparent),
       xpd = TRUE,
       inset = c(0, 0),
       ncol = min(length(featureNames), numberOfFeaturesInOneLegenRow),
