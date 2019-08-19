@@ -204,7 +204,7 @@ explain.data.frame <- function(x, explainer, labels = NULL,
       explanations[ridx, "feature"] = "base"
       explanations[ridx, "feature_weight"] = rules$precision - sum(unlist(featuresWeight))
       explanations[ridx, "added_coverage"] = 0
-      explanations[ridx, "data"] = collapse(unlist(instance))
+      explanations[ridx, "data"] = collapse(as.numeric(unlist(instance)))
       explanations[ridx, "precision"] = rules$precision
       explanations[ridx, "coverage"] = rules$coverage
 
@@ -220,7 +220,7 @@ explain.data.frame <- function(x, explainer, labels = NULL,
         explanations[ridx, "added_coverage"] = addedCoverage[[j]]
         explanations[ridx, "feature_desc"] = featuresText[[j]]
         explanations[ridx, "feature_desc_short"] = featuresTextShort[[j]]
-        explanations[ridx, "data"] = collapse(unlist(instance))
+        explanations[ridx, "data"] = collapse(as.numeric(unlist(instance)))
         explanations[ridx, "precision"] = rules$precision
         explanations[ridx, "coverage"] = rules$coverage
       }
