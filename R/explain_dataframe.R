@@ -103,6 +103,10 @@ explain.data.frame <- function(x, explainer, labels = NULL,
         break
       }
 
+      if (response$status == "exception") {
+        stop(paste("The server threw an exception:", response$reason))
+      }
+
       if (response$status == "eval_request") {
         # Anchors requests perturbation and model call
         message(".", appendLF = FALSE)
