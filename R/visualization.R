@@ -262,9 +262,23 @@ plotExplanations <- function(explanations,
         i=1
         r=sapply(widthOfLabels, function(x){
           if(x>toPlot[i, ncol]){
-            if((i>2 && yPositions[i-1]<p[ncol]) || (i>2 && widthOfLabels[i-1]==0 && yPositions[i-2]<p[ncol])){
-              yPositions[i]<<-p[ncol]+1/2*coverageMatrix[colnames(toPlot)[ncol], "coverageBin"]+max(strheight(relevantBins))
 
+            if(i>2){
+              # Find last element with a label
+              lastElement=i-1
+              while(lastElement>0){
+                if(widthOfLabels[lastElement]==0){
+                  lastElement=lastElement-1
+                }else{
+                  break;
+                }
+              }
+
+              if(yPositions[lastElement]<p[ncol]){
+                yPositions[i]<<-p[ncol]+1/2*coverageMatrix[colnames(toPlot)[ncol], "coverageBin"]+max(strheight(relevantBins))
+              }else{
+                yPositions[i]<<-p[ncol]-1/2*coverageMatrix[colnames(toPlot)[ncol], "coverageBin"]-max(strheight(relevantBins))
+              }
             }else if(i>1 && yPositions[i-1]<p[ncol]){
               yPositions[i]<<-p[ncol]+1/2*coverageMatrix[colnames(toPlot)[ncol], "coverageBin"]+max(strheight(relevantBins))
 
