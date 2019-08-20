@@ -103,6 +103,10 @@ explain.data.frame <- function(x, explainer, labels = NULL,
         break
       }
 
+      if (response$status == "exception") {
+        stop(paste("The server threw an exception:", response$reason))
+      }
+
       if (response$status == "eval_request") {
         # Anchors requests perturbation and model call
         message(".", appendLF = FALSE)
@@ -204,7 +208,7 @@ explain.data.frame <- function(x, explainer, labels = NULL,
       explanations[ridx, "feature"] = "base"
       explanations[ridx, "feature_weight"] = rules$precision - sum(unlist(featuresWeight))
       explanations[ridx, "added_coverage"] = 0
-      explanations[ridx, "data"] = collapse(unlist(instance))
+      explanations[ridx, "data"] = BBmisc::collapse(unlist(instance))
       explanations[ridx, "precision"] = rules$precision
       explanations[ridx, "coverage"] = rules$coverage
 
@@ -220,7 +224,7 @@ explain.data.frame <- function(x, explainer, labels = NULL,
         explanations[ridx, "added_coverage"] = addedCoverage[[j]]
         explanations[ridx, "feature_desc"] = featuresText[[j]]
         explanations[ridx, "feature_desc_short"] = featuresTextShort[[j]]
-        explanations[ridx, "data"] = collapse(unlist(instance))
+        explanations[ridx, "data"] = BBmisc::collapse(unlist(instance))
         explanations[ridx, "precision"] = rules$precision
         explanations[ridx, "coverage"] = rules$coverage
       }
