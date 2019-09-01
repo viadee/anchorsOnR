@@ -12,8 +12,10 @@ shutdown <- function(control = NULL){
   con = control$connection
 
   message("Shutting down Anchors JVM: ", appendLF = FALSE);
-  message = rjson::toJSON(list("quit" = 1))
-  writeLines(message, con)
+  quitmessage = list("quit" = 1)
+  quitmessage = as.character(jsonlite::toJSON(quitmessage, auto_unbox = T))
+  writeLines(quitmessage, con)
+
   close(con)
   message("Anchors has been successfully terminated.")
   control <- NULL
@@ -305,12 +307,12 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_,
 #'
 #' Attempt to recover an anchors connection.
 #'
-#' @return Returns an \linkS4class{AnchorsConnection} object.
+#' @return Returns an connection object.
 #' @export
-anchors.getConnection <- function() {
+.getConnection <- function() {
   conn <- .attemptConnection()
   if (is.null(conn))
-    stop("No active connection to an Anchors cluster. Did you run `anchors.init()` ?")
+    stop("No active connection to an Anchors cluster. Did you run `anchors()` ?")
   conn
 }
 
