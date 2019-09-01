@@ -8,7 +8,7 @@ test_that("anchors explanation only produces at max one entry per case and featu
 
   # Create Random Forest model on iris data
   task = makeClassifTask(data = iris, target = "Species", id = "iris")
-  lrn = makeLearner("classif.rpart")
+  lrn = makeLearner("classif.lda")
   model = mlr::train(learner = lrn, task = task)
 
 
