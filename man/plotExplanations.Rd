@@ -5,7 +5,7 @@
 \title{Visualizes the explanation result}
 \usage{
 plotExplanations(explanations, featureNames = NULL, colPal = NULL,
-  pdf = NULL)
+  adjColorTransparent = 1, pdf = NULL)
 }
 \arguments{
 \item{explanations}{the explanation result}
@@ -13,6 +13,8 @@ plotExplanations(explanations, featureNames = NULL, colPal = NULL,
 \item{featureNames}{the featureNames}
 
 \item{colPal}{the color pallet}
+
+\item{adjColorTransparent}{the transparency of the colors (alpha)}
 
 \item{pdf}{whether output should be pdf}
 }
