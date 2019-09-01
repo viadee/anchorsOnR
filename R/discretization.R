@@ -1,9 +1,9 @@
 #' Title
 #'
-#' @param df
-#' @param bins
+#' @param df the data.frame on which discretization will be applied upon
+#' @param bins the discretization bins
 #'
-#' @return
+#' @return a discretized data.frame
 #' @export
 #'
 #' @examples

@@ -11,6 +11,9 @@
 #' @param model The model whose output should be explained
 #'
 #' @param perturbator Pertubator to perturbate the instances to be explained.
+#' @param bins the discretization bins
+#' @param p the perturbation probability(?)
+#' @param coverage_perturbation_count ? TODO
 #'
 #' @param target Target column in [x].
 #' Provide this if model is not of class "WrappedModel".
@@ -29,6 +32,7 @@
 #' argument has practical advantages.
 #' @param allowSuboptimalSteps if set to false, candidates that are returned by the best arm identification get
 #' removed when their precision is lower than their parent's
+#' @param batchSize ? TODO
 #' @param emptyRuleEvaluations the number of evaluations to perform for the empty rule
 #' @param verbose anchors will print abbreviated information and round after 4 digits. Set verbose to `TRUE` to increase information load. Default: `FALSE`
 #'

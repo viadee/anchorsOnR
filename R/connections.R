@@ -30,6 +30,7 @@ shutdown <- function(control = NULL){
 #' @param port Object of class \code{numeric} representing the port number of the Anchors server.
 #' @param name (Optional) A \code{character} string representing the Anchors cluster name.
 #' @param startAnchors (Optional) A \code{logical} value indicating whether to try to start Anchors from R if no connection with Anchors is detected. This is only possible if \code{ip = "localhost"} or \code{ip = "127.0.0.1"}.  If an existing connection is detected, R does not start Anchors.
+#' @param explainer An \code{explainer} object holding startup params for the server
 #' @return this method will load it and return a socketConnection
 #' @export
 initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_,
