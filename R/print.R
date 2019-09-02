@@ -1,13 +1,13 @@
-#' #' Prints a human readable IF-THEN sequence for all explanations
-#' #'
-#' #' This function prints a set of IF-THEN rules for each explanation.
-#' #'
-#' #' @param explainer An `explainer` as returned by [anchors()].
-#' #' @param explanation An `explanations` object as returned by [explain()].
-#' #'
-#' #' @return Prints a set of rules
-#' #'
-#' #' @export
+#' Prints a human readable IF-THEN sequence for all explanations
+#'
+#' This function prints a set of IF-THEN rules for each explanation.
+#'
+#' @param explainer An `explainer` as returned by [anchors()].
+#' @param explanations An `explanations` object as returned by [explain()].
+#'
+#' @return Prints a set of rules
+#'
+#' @export
 printExplanations <- function(explainer, explanations){
 
   num_cases <- unique(suppressWarnings(as.numeric(explanations$case)))
@@ -20,7 +20,14 @@ printExplanations <- function(explainer, explanations){
   }
 }
 
-
+#' Internal helper function
+#'
+#' @param i a counter
+#' @param explainer An `explainer` as returned by [anchors()].
+#' @param explanations An `explanations` object as returned by [explain()].
+#'
+#' @return Prints an instance
+#'
 printInstance <- function(i, explainer, explanations){
   instance = explainer$x[i,]
   cat(paste("====Explained Instance ", i,"===="), sep = "\n")
@@ -30,6 +37,14 @@ printInstance <- function(i, explainer, explanations){
   cat(paste("WITH LABEL", explainer$target, "=", paste0("'",unique(instance[,explainer$target]),"'")), sep = "\n")
 }
 
+#' Internal helper function
+#'
+#' @param i a counter
+#' @param explainer An `explainer` as returned by [anchors()].
+#' @param explanations An `explanations` object as returned by [explain()].
+#'
+#' @return Prints a rule
+#'
 printRule <- function(i, explainer, explanations){
 
   explanations$feature_weight = explanations$feature_weight * 100

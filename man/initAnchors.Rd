@@ -15,6 +15,8 @@ initAnchors(ip = "localhost", port = 6666, name = NA_character_,
 \item{name}{(Optional) A \code{character} string representing the Anchors cluster name.}
 
 \item{startAnchors}{(Optional) A \code{logical} value indicating whether to try to start Anchors from R if no connection with Anchors is detected. This is only possible if \code{ip = "localhost"} or \code{ip = "127.0.0.1"}.  If an existing connection is detected, R does not start Anchors.}
+
+\item{explainer}{An \code{explainer} object holding startup params for the server}
 }
 \value{
 this method will load it and return a socketConnection

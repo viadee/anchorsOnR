@@ -7,12 +7,10 @@
 makePerturbator(perturbator, supported = getAvailableRepresentations())
 }
 \arguments{
-\item{supported}{[\code{character}]\cr
-Vector of names of supported parameter representations. Possible choices:
-\dQuote{tabular}, \dQuote{image}.}
+\item{perturbator}{[\code{function}] Actual perturbation function.}
 
-\item{function}{[\code{function}]\cr
-Actual perturbation function.}
+\item{supported}{[\code{character}] Vector of names of supported parameter representations.
+Possible choices: \dQuote{tabular}.}
 }
 \value{
 [\code{anchors_perturbator}] Operator object.
@@ -22,5 +20,5 @@ Helper function which constructs an perturbation operator.
 }
 \note{
 In general you will not need this function, but rather one of its
-deriviatives like \code{\link{makeTabularPerturbator}} or \code{\link{makeImagePerturbator}}.
+deriviatives like \code{\link{perturbTabular}}.
 }

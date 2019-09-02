@@ -9,7 +9,7 @@ perturbate(perturbationFun, dataset, discretized_dataset, instance,
 }
 \arguments{
 \item{perturbationFun}{defines how the instances is perturbated. Usually, you
-will use \code{\link{makeTabularPerturbator}} to create a perturbation operator}
+will use \code{\link{perturbTabular}} to create a perturbation operator}
 
 \item{dataset}{the dataset from which perturbations will be drawn}
 

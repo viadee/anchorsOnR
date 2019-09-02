@@ -5,10 +5,9 @@
 \alias{explain.data.frame}
 \title{Explain model predictions}
 \usage{
-explain(x, explainer, labels = NULL, feature_select = "auto", ...)
+explain(x, explainer, labels = NULL, ...)
 
-\method{explain}{data.frame}(x, explainer, labels = NULL,
-  feature_select = "auto", ...)
+\method{explain}{data.frame}(x, explainer, labels = NULL, ...)
 }
 \arguments{
 \item{x}{New observations to explain, of the same format as used when
@@ -19,31 +18,7 @@ creating the explainer}
 \item{labels}{The specific labels (classes) to explain in case the model is
 a classifier. For classifiers either this or `n_labels` must be given.}
 
-\item{feature_select}{The algorithm to use for selecting features. One of:
-
-- `"auto"`: If `n_features <= 6` use `"forward_selection"` else use
-  `"highest_weights"`.
-- `"none"`: Ignore `n_features` and use all features.
-- `"forward_selection"`: Add one feature at a time until `n_features` is
-  reached, based on quality of a ridge regression model.
-- `"highest_weights"`: Fit a ridge regression and select the `n_features`
-  with the highest absolute weight.
-- `"lasso_path"`: Fit a lasso model and choose the `n_features` whose lars
-  path converge to zero the latest.
-- `"tree"` : Fit a tree to select `n_features` (which needs to be a power of
-  2). It requires last version of `XGBoost`.}
-
 \item{...}{Parameters passed on to the `predict_model()` method}
-
-\item{n_labels}{The number of labels to explain. If this is given for
-classifiers the top `n_label` classes will be explained.}
-
-\item{n_features}{The number of features to use for each explanation.}
-
-\item{n_permutations}{The number of permutations to use for each explanation.}
-
-\item{probKeepPerturbations}{probability to keep an instance's attribute
-value when producing perturbations}
 }
 \value{
 A data.frame encoding the explanations one row per explained

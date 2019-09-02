@@ -21,10 +21,11 @@ perturbTabularDisc(dataset, discretized_dataset, instance,
 
 \item{discretized_instance}{the discretized version of the instance}
 
+\item{anchors}{selected anchors in the data set}
+
 \item{p}{possibility of an a feature to be perturbated. Anchors are not perturbated.}
 
-\item{perturbationFun}{defines how the instances is perturbated. Usually, you
-will use \code{\link{makeTabularPerturbator}} to create a perturbation operator}
+\item{...}{further arguments to be passed}
 }
 \value{
 perturbated instance

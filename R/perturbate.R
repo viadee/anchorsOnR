@@ -1,7 +1,7 @@
 #' @title Perturbate an instance
 #'
 #' @param perturbationFun defines how the instances is perturbated. Usually, you
-#' will use \code{\link{makeTabularPerturbator}} to create a perturbation operator
+#' will use \code{\link{perturbTabular}} to create a perturbation operator
 #' @param dataset the dataset from which perturbations will be drawn
 #' @param discretized_dataset the discretized dataset
 #' @param instance the instance to be perturbed

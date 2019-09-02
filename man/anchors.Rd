@@ -29,6 +29,12 @@ explained.}
 
 \item{perturbator}{Pertubator to perturbate the instances to be explained.}
 
+\item{bins}{the discretization bins}
+
+\item{p}{the perturbation probability(?)}
+
+\item{coverage_perturbation_count}{? TODO}
+
 \item{target}{Target column in [x].
 Provide this if model is not of class "WrappedModel".}
 
@@ -53,6 +59,8 @@ argument has practical advantages.}
 
 \item{allowSuboptimalSteps}{if set to false, candidates that are returned by the best arm identification get
 removed when their precision is lower than their parent's}
+
+\item{batchSize}{? TODO}
 
 \item{emptyRuleEvaluations}{the number of evaluations to perform for the empty rule}
 

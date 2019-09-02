@@ -1,2 +1,10 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^cancerExpl\.RData$ #
+^iris_decision_tree\.png$  #
+^test\.pdf$         #
+^README\.Rmd$       # An Rmarkdown file used to generate README.md
+^cran-comments\.md$ # Comments for CRAN submission
+^NEWS\.md$          # A news file written in Markdown
+^SECURITY\.md$      # A file with security information written in Markdown
+^\.travis\.yml$     # Used for continuous integration testing with travis

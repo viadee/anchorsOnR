@@ -6,8 +6,7 @@
 #' @name explain
 #'
 #' @export
-explain.data.frame <- function(x, explainer, labels = NULL,
-                               feature_select = 'auto', ...) {
+explain.data.frame <- function(x, explainer, labels = NULL, ...) {
 
   checkmate::assert_true(is.data_frame_explainer(explainer))
   m_type <- model_type(explainer)

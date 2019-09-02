@@ -8,7 +8,7 @@ Authors@R: as.person(c(
   "Magdalena Lang <magdalena.lang@viadee.de> [ctb]"))
 Maintainer: Thorben Hellweg <thorben.hellweg@viadee.de>
 Description: This package provides an interface to the java-based implementation of the anchors explanation algorithm for machine learning models. It enables High-Precision Model-Agnostic Explanations in your favourite statistical computing language. 
-License: BSD 3
+License: BSD_3_clause + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Depends: 
@@ -16,12 +16,14 @@ Depends:
     jsonlite,
     BBmisc,
     uuid,
-    magrittr
+    magrittr,
+    plyr
 VignetteBuilder: knitr
 SystemRequirements: Java Runtime Environment (JRE)
 Suggests: 
     testthat,
     mlr,
     h2o,
-    knitr
+    knitr,
+    MASS
 RoxygenNote: 6.1.1

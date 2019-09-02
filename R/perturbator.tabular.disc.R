@@ -4,13 +4,13 @@
 #' @description
 #' Perturbation function for tabular data
 #'
-#' @param perturbationFun defines how the instances is perturbated. Usually, you
-#' will use \code{\link{makeTabularPerturbator}} to create a perturbation operator
 #' @param dataset the dataset from which perturbations will be drawn
 #' @param discretized_dataset the discretized dataset
 #' @param instance the instance to be perturbed
 #' @param discretized_instance the discretized version of the instance
+#' @param anchors selected anchors in the data set
 #' @param p possibility of an a feature to be perturbated. Anchors are not perturbated.
+#' @param ... further arguments to be passed
 #' @return perturbated instance
 #' @family pertubators
 #' @export

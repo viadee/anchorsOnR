@@ -15,30 +15,6 @@
 #' @param labels The specific labels (classes) to explain in case the model is
 #' a classifier. For classifiers either this or `n_labels` must be given.
 #'
-#' @param n_labels The number of labels to explain. If this is given for
-#' classifiers the top `n_label` classes will be explained.
-#'
-#' @param n_features The number of features to use for each explanation.
-#'
-#' @param n_permutations The number of permutations to use for each explanation.
-#'
-#' @param feature_select The algorithm to use for selecting features. One of:
-#'
-#' - `"auto"`: If `n_features <= 6` use `"forward_selection"` else use
-#'   `"highest_weights"`.
-#' - `"none"`: Ignore `n_features` and use all features.
-#' - `"forward_selection"`: Add one feature at a time until `n_features` is
-#'   reached, based on quality of a ridge regression model.
-#' - `"highest_weights"`: Fit a ridge regression and select the `n_features`
-#'   with the highest absolute weight.
-#' - `"lasso_path"`: Fit a lasso model and choose the `n_features` whose lars
-#'   path converge to zero the latest.
-#' - `"tree"` : Fit a tree to select `n_features` (which needs to be a power of
-#'   2). It requires last version of `XGBoost`.
-#'
-#'
-#' @param probKeepPerturbations probability to keep an instance's attribute
-#' value when producing perturbations
 #'
 #' @param ... Parameters passed on to the `predict_model()` method
 #'
@@ -65,7 +41,7 @@
 #'
 #' @export
 #'
-explain <- function(x, explainer, labels = NULL, feature_select = 'auto', ...) {
+explain <- function(x, explainer, labels = NULL, ...) {
   UseMethod("explain", x)
 }
 

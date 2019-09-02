@@ -7,7 +7,12 @@
 discretize.data.frame(df, bins)
 }
 \arguments{
-\item{bins}{}
+\item{df}{the data.frame on which discretization will be applied upon}
+
+\item{bins}{the discretization bins}
+}
+\value{
+a discretized data.frame
 }
 \description{
 Title
