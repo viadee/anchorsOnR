@@ -157,21 +157,21 @@ explain.data.frame <- function(x, explainer, labels = NULL, ...) {
 
       rules = response$anchorResult[[1]]
       featuresWeight = sapply(
-        rules$canonicalFeatures,
+        rules$orderedFeatures,
         getFeatureWeight,
         candidates = rules,
         instance = instance,
         dataset = explainer$x
       )
       addedCoverage = sapply(
-        rules$canonicalFeatures,
+        rules$orderedFeatures,
         getAddedCoverage,
         candidates = rules,
         instance = instance,
         dataset = explainer$x
       )
       featuresText = sapply(
-        rules$canonicalFeatures,
+        rules$orderedFeatures,
         getFeatureText,
         candidates = rules,
         instance = instance,
@@ -180,7 +180,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, ...) {
       )
 
       featuresText = sapply(
-        rules$canonicalFeatures,
+        rules$orderedFeatures,
         getFeatureText,
         candidates = rules,
         instance = instance,
@@ -190,7 +190,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, ...) {
       )
 
       featuresTextShort = sapply(
-        rules$canonicalFeatures,
+        rules$orderedFeatures,
         getFeatureText,
         candidates = rules,
         instance = instance,
@@ -232,7 +232,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, ...) {
 
       rules = append(rules, list(response$anchorResult[[1]]))
     } else {
-      stopf(
+      BBmisc::stopf(
         "R_IllegalFormatException: Could not find field \"anchorResult\" in Server response"
       )
     }
