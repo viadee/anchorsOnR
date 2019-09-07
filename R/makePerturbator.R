@@ -21,8 +21,8 @@ makePerturbator = function(
   checkmate::assertFunction(perturbator)
   checkmate::assertSubset(supported, choices = getAvailableRepresentations(), empty.ok = FALSE)
 
-  perturbator = setAttribute(perturbator, "supported", supported)
-  perturbator = addClasses(perturbator, c("anchors_perturbator"))
+  perturbator = BBmisc::setAttribute(perturbator, "supported", supported)
+  perturbator = BBmisc::addClasses(perturbator, c("anchors_perturbator"))
   return(perturbator)
 }
 
