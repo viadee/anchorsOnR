@@ -42,6 +42,8 @@
 #' explain model predictions.
 #'
 #' @name anchors
+#' @example
+#' explainer = anchors(iris, model, target = "Species", bins = bins, tau = 1)
 #' @export
 anchors <- function(x, model, perturbator = NULL, bins = NULL,
                     p = 0.5, coverage_perturbation_count = 1000,

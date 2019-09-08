@@ -39,6 +39,19 @@
 #' - `label`: The label being explained
 #' - `label_prob`: The probability of `label` as predicted by `model`
 #'
+#' @examples
+#' # Explaining a model based on tabular data
+#' library(anchors)
+#' library(mlr)
+#' data(iris)
+#' # our goal is to predict the species
+#' task = makeClassifTask(data = iris, target = "Species", id = "iris")
+#' # setting up a learner
+#' lrn = makeLearner("classif.rpart")
+#' # train the learner on the training set
+#' model = train(learner = lrn, task = task)
+#' explainer = anchors(iris, model, target = "Species")
+#' explanations = explain(iris[100,], explainer)
 #' @export
 #'
 explain <- function(x, explainer, labels = NULL, ...) {
