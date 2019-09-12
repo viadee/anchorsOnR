@@ -25,7 +25,7 @@ perturbTabularDisc = makePerturbator(
 
     for (i in pertCols) {
       # If the value is not to be changed. Should not occur in this function anyways, as usually p = 1
-      if (as.logical(rbinom(1, size = 1, prob = p)) == F) {
+      if (as.logical(stats::rbinom(1, size = 1, prob = p)) == F) {
         instance[, i] <- discretized_instance[, i]
       } else {
         # If the value is to be changed take a random other class and its discretized value

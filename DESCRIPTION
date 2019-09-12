@@ -11,13 +11,16 @@ Description: This package provides an interface to the java-based implementation
 License: BSD_3_clause + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Depends: 
+Imports: 
     checkmate,
     jsonlite,
     BBmisc,
     uuid,
     magrittr,
-    plyr
+    plyr,
+    stats,
+    grDevices,
+    graphics
 VignetteBuilder: knitr
 SystemRequirements: Java Runtime Environment (JRE)
 Suggests: 

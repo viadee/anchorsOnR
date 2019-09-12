@@ -8,6 +8,8 @@
 #'
 #' @return the plot object
 #'
+#' @importFrom graphics legend par plot axis barplot layout strheight strwidth text
+#' @importFrom grDevices dev.off adjustcolor dev.size terrain.colors
 #' @export
 plotExplanations <- function(explanations,
                              featureNames = NULL,
@@ -118,7 +120,7 @@ plotExplanations <- function(explanations,
       ) + 1), ncol = 1), heights = c(heightWithPar, heightForLegend), TRUE)
 
     if (is.null(colPal)) {
-      colPal = grDevices::terrain.colors(length(featureNames))
+      colPal = terrain.colors(length(featureNames))
     }
 
 

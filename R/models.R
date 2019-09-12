@@ -89,6 +89,8 @@ set_labels <- function(res, model) {
 predict_model <- function(x, newdata, type, ...) {
   UseMethod('predict_model')
 }
+
+#' @importFrom stats predict
 #' @export
 predict_model.default <- function(x, newdata, type, ...) {
   p <- predict(x, newdata = newdata, type = type, ...)
@@ -120,12 +122,12 @@ predict_model.H2OModel <- function(x, newdata, type, ...){
   if (!requireNamespace('h2o', quietly = TRUE)) {
     stop('The h2o package is required for predicting h2o models')
   }
-  h2o.no_progress()
+  h2o::h2o.no_progress()
   pred <- h2o::h2o.predict(x, h2o::as.h2o(newdata))
-  h2o.show_progress()
+  h2o::h2o.show_progress()
   h2o_model_class <- class(x)[[1]]
   if (h2o_model_class %in% c("H2OBinomialModel", "H2OMultinomialModel")) {
-    data = namedList(c("id", "truth", "response", "prob"))
+    data = BBmisc::namedList(c("id", "truth", "response", "prob"))
     data$id = rownames(newdata)
 
     # Use the predicted label with the highest probability
@@ -135,9 +137,9 @@ predict_model.H2OModel <- function(x, newdata, type, ...){
     #data$truth = truth
     data$response = response
     #levels(data$response) = as.character(levels(data$truth))
-    data = as.data.frame(filterNull(data))
+    data = as.data.frame(BBmisc::filterNull(data))
 
-    p = makeS3Obj(c("Prediction"),
+    p = BBmisc::makeS3Obj(c("Prediction"),
                   data = data,
                   predict.type = "response",
                   threshold = (1/ncol(pred[,-1])),

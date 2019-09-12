@@ -17,7 +17,7 @@ perturbTabular = makePerturbator(
 
     # Perturbate columns that are not anchors
     for (i in pertCols) {
-      if (as.logical(rbinom(1, size = 1, prob = p))) {
+      if (as.logical(stats::rbinom(1, size = 1, prob = p))) {
         instance[, i] <- sampled_instance[, i]
       }
     }

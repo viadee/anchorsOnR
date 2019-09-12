@@ -16,7 +16,7 @@ creating the explainer}
 \item{explainer}{An `explainer` object to use for explaining the observations}
 
 \item{labels}{The specific labels (classes) to explain in case the model is
-a classifier. For classifiers either this or `n_labels` must be given.}
+a classifier.}
 
 \item{...}{Parameters passed on to the `predict_model()` method}
 }
@@ -51,4 +51,30 @@ returned explanations can then be visualised in a number of ways, e.g. with
 [plot_features()].
 
 This scenario is described by the previously created anchors.tabular.
+}
+\examples{
+# Explaining a model based on tabular data
+library(anchors)
+library(mlr)
+data(iris)
+# our goal is to predict the species
+task = makeClassifTask(data = iris, target = "Species", id = "iris")
+# setting up a learner
+lrn = makeLearner("classif.lda")
+# train the learner on the training set
+model = train(learner = lrn, task = task)
+explainer = anchors(iris, model, target = "Species")
+explanations = explain(iris[100,], explainer)
+# Explaining a model based on tabular data
+library(anchors)
+library(mlr)
+data(iris)
+# our goal is to predict the species
+task = makeClassifTask(data = iris, target = "Species", id = "iris")
+# setting up a learner
+lrn = makeLearner("classif.lda")
+# train the learner on the training set
+model = train(learner = lrn, task = task)
+explainer = anchors(iris, model, target = "Species")
+explanations = explain(iris[100,], explainer)
 }

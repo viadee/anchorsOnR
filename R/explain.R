@@ -13,7 +13,7 @@
 #' @param explainer An `explainer` object to use for explaining the observations
 #'
 #' @param labels The specific labels (classes) to explain in case the model is
-#' a classifier. For classifiers either this or `n_labels` must be given.
+#' a classifier.
 #'
 #'
 #' @param ... Parameters passed on to the `predict_model()` method
@@ -47,7 +47,7 @@
 #' # our goal is to predict the species
 #' task = makeClassifTask(data = iris, target = "Species", id = "iris")
 #' # setting up a learner
-#' lrn = makeLearner("classif.rpart")
+#' lrn = makeLearner("classif.lda")
 #' # train the learner on the training set
 #' model = train(learner = lrn, task = task)
 #' explainer = anchors(iris, model, target = "Species")

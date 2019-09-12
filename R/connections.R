@@ -6,7 +6,7 @@
 #' @export
 shutdown <- function(control = NULL){
   if(is.null(control$connection)){
-    stopf("AnchorsControl Object does not maintain a connection object")
+    BBmisc::stopf("AnchorsControl Object does not maintain a connection object")
   }
 
   con = control$connection
@@ -74,8 +74,8 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_,
       })
     }
   } else if(is.null(con) && startAnchors == FALSE){
-    stopf("No running instance of Anchors found. Set 'startAnchors = TRUE' to start an Anchors instance.")
-    return (null)
+    BBmisc::stopf("No running instance of Anchors found. Set 'startAnchors = TRUE' to start an Anchors instance.")
+    return (NULL)
   }
 
   if (is.null(con)){
@@ -303,33 +303,3 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_,
   }
   return(possible_file)
 }
-
-#' Retrieve an Anchors Connection
-#'
-#' Attempt to recover an anchors connection.
-#'
-#' @return Returns an connection object.
-#' @export
-.getConnection <- function() {
-  conn <- .attemptConnection()
-  if (is.null(conn))
-    stop("No active connection to an Anchors cluster. Did you run `anchors()` ?")
-  conn
-}
-
-.attemptConnection <- function() {
-  conn <- get("SERVER", .pkg.env)
-  if (is.null(conn)) {
-    # Try to recover an AnchorsConnection object from a saved session
-    for (objname in ls(parent.frame(), all.names = TRUE)) {
-      object <- get(objname, globalenv())
-      if (is(object, "AnchorsConnection") && anchors.clusterIsUp(object)) {
-        conn <- object
-        assign("SERVER", conn, .pkg.env)
-        break
-      }
-    }
-  }
-  conn
-}
-

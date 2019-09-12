@@ -81,15 +81,4 @@ types supported by anchors.
 For this, a model and a perturbation space is required.
 To construct the perturbation space, a training set is used.
 Also, discretization can be defined to increase explanation quality.
-
-The anchors package provides two categories of important functions:
-methods to handle the underlying Anchors Java Server and functions for explanation and rule creation.
 }
-\section{Handling the underlying anchors java server}{
-
-}
-
-\section{Explaining machine learning models}{
-
-}
-

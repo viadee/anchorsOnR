@@ -5,6 +5,19 @@
 #' @rdname explain
 #' @name explain
 #'
+#' @examples
+#' # Explaining a model based on tabular data
+#' library(anchors)
+#' library(mlr)
+#' data(iris)
+#' # our goal is to predict the species
+#' task = makeClassifTask(data = iris, target = "Species", id = "iris")
+#' # setting up a learner
+#' lrn = makeLearner("classif.lda")
+#' # train the learner on the training set
+#' model = train(learner = lrn, task = task)
+#' explainer = anchors(iris, model, target = "Species")
+#' explanations = explain(iris[100,], explainer)
 #' @export
 explain.data.frame <- function(x, explainer, labels = NULL, ...) {
 
@@ -12,8 +25,8 @@ explain.data.frame <- function(x, explainer, labels = NULL, ...) {
   m_type <- model_type(explainer)
   o_type <- output_type(explainer)
   if (m_type == 'regression') {
-    if (!is.null(labels) || !is.null(n_labels)) {
-      warning('"labels" and "n_labels" arguments are ignored when explaining regression models')
+    if (!is.null(labels)) {
+      warning('"labels" argument is ignored when explaining regression models')
     }
     stop("Regression models are not yet supported")
   }
@@ -127,7 +140,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, ...) {
 
         pred = predict_model(explainer$model, instancesDf, ...)
         pred$data$truth = labels[i]
-        precision = performance_model(pred, measures = list(acc))[[1]]
+        precision = performance_model(pred, measures = list(mlr::acc))[[1]]
 
         # TODO wouldn't it better to straight away only send the correctly predicted labels?
         matchingLabels = precision * samplesToEvaluate
@@ -227,6 +240,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, ...) {
         explanations[ridx, "precision"] = rules$precision
         explanations[ridx, "coverage"] = rules$coverage
       }
+
 
       class(explanations) = c("explanations", class(explanations))
 
