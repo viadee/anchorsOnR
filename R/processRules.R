@@ -35,8 +35,10 @@ getFeatureText <- function(candidates, feature, instance, dataset, bins, short=F
     else {
       if(short && bin$numeric){
         featureDesc = paste(colnames(dataset)[feature+1], "IN", buildDescription(providedBin, bin$cuts, bin$right, short))
-      }else{
+      }else if (!short && bin$numeric){
         featureDesc = paste(colnames(dataset)[feature+1], "IN", buildDescription(providedBin, bin$cuts, bin$right, F))
+      }else {
+        featureDesc = paste(colnames(dataset)[feature+1], "IN", paste0("{", paste(bin$classes[[providedBin]], collapse = ","), "}"))
       }
 
     }
