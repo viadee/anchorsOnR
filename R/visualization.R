@@ -91,8 +91,26 @@ plotExplanations <- function(explanations,
 
 
     if(anyBelowZero){
-      message("Negative added precision is visualized as 0.")
+      message("Negative added precision is visualized as 0. Note that the generated visualization might be misleading, as positive added precision is adjusted.")
+      #fix for #65
+      negativeInds = which(precisionMatrix==1e-04, arr.ind=TRUE)
+
+      cases = rownames(precisionMatrix)[negativeInds[,1]]
+      features = colnames(precisionMatrix)[negativeInds[,2]]
+      names(features) = cases
+
+      for (case in cases){
+        caseFeatures = features[names(features)==case]
+        precisionWithoutNegative = sum(precisionMatrix[case,]) + sum(explanations[explanations[, "case"] == case & explanations[, "feature"] %in% features, "feature_weight"])
+        precisionMatrix[case,] = round((precisionWithoutNegative/sum(precisionMatrix[case,]))*precisionMatrix[case,],digits=2)
+
+      }
+
+      # adjust base case
+      if(minimumBase>precisionMatrix[cases, "base"])
+        minimumBase = min(precisionMatrix[cases, "base"])
     }
+
     prevPar = par(no.readonly = TRUE)
 
     if(!is.null(pdf)){
@@ -130,6 +148,7 @@ plotExplanations <- function(explanations,
       currentLabel =  unique(coverageMatrix[, "label"])[i]
 
       toPlot = t(precisionMatrix[coverageMatrix[, "label"] == currentLabel, ])
+
       # In some cases (especially when length = 1), colnames will not be set
       if (is.null(colnames(toPlot)))
         colnames(toPlot) = rownames(precisionMatrix)
@@ -140,9 +159,7 @@ plotExplanations <- function(explanations,
                                                             currentLabel)]
       }
 
-
       maximumPrecisionConsideringNegative = max(apply(precisionMatrix, 1, sum))
-
 
       if (i == length(unique(coverageMatrix[, "label"]))) {
         par(mar = c(4, 4, 0, 0))
@@ -362,7 +379,8 @@ plotExplanations <- function(explanations,
       xpd = TRUE,
       inset = c(0, 0),
       ncol = min(length(featureNames), numberOfFeaturesInOneLegenRow),
-      x.intersp = 0.3
+      x.intersp = 0.3,
+      cex = 0.9
     )
 
     if(!is.null(pdf)){ dev.off()}else{
