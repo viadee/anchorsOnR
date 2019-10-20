@@ -113,7 +113,7 @@ predict_model.WrappedModel <- function(x, newdata, type, ...) {
   if (!requireNamespace('mlr', quietly = TRUE)) {
     stop('mlr must be available when working with WrappedModel models')
   }
-  p <- predict(x, newdata = newdata, ...)
+  p <- predict(x, newdata = newdata, ...)$data$response
 }
 
 
@@ -131,27 +131,10 @@ predict_model.H2OModel <- function(x, newdata, type, ...){
     data$id = rownames(newdata)
 
     # Use the predicted label with the highest probability
-    response = as.vector(pred[,1])
-    #truth = newdata[,explainer$model@parameters$y]
+    p = as.vector(pred[,1])
 
-    #data$truth = truth
-    data$response = response
-    #levels(data$response) = as.character(levels(data$truth))
-    data = as.data.frame(BBmisc::filterNull(data))
-
-    p = BBmisc::makeS3Obj(c("Prediction"),
-                  data = data,
-                  predict.type = "response",
-                  threshold = (1/ncol(pred[,-1])),
-                  task.desc = NULL,
-                  error = NA_character_,
-                  dump = NULL
-    )
-    return(p)
   } else if (h2o_model_class == "H2ORegressionModel") {
-    ret <- as.data.frame(pred[,1])
-    names(ret) <- "Response"
-    return(ret)
+    p <- as.vector(pred[,1])
   } else {
     stop('This h2o model is not currently supported.')
   }

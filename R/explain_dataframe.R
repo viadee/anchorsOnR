@@ -43,7 +43,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, ...) {
   }
 
   if (is.null(labels))
-    labels <- predict_model(explainer$model, x)$data$response
+    labels <- predict_model(explainer$model, x)
 
   if (is.null(labels))
     stop("Either labels or a target column to be explained need to be specified")
@@ -139,11 +139,9 @@ explain.data.frame <- function(x, explainer, labels = NULL, ...) {
         }))
 
         pred = predict_model(explainer$model, instancesDf, ...)
-        pred$data$truth = labels[i]
-        precision = performance_model(pred, measures = list(mlr::acc))[[1]]
-
-        # TODO wouldn't it better to straight away only send the correctly predicted labels?
-        matchingLabels = precision * samplesToEvaluate
+        matchingLabels = length(pred[pred==labels[i]])
+        # Note that for some reason (convention?), within anchors, we call accurancy precision!
+        precision = matchingLabels/samplesToEvaluate
 
         # Send precision to anchors
         respond.with.precision(backend_connection,
