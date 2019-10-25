@@ -127,10 +127,7 @@ predict_model.H2OModel <- function(x, newdata, type, ...){
   h2o::h2o.show_progress()
   h2o_model_class <- class(x)[[1]]
   if (h2o_model_class %in% c("H2OBinomialModel", "H2OMultinomialModel")) {
-    data = BBmisc::namedList(c("id", "truth", "response", "prob"))
-    data$id = rownames(newdata)
-
-    # Use the predicted label with the highest probability
+      # Use the predicted label with the highest probability
     p = as.vector(pred[,1])
 
   } else if (h2o_model_class == "H2ORegressionModel") {
@@ -140,6 +137,31 @@ predict_model.H2OModel <- function(x, newdata, type, ...){
   }
 }
 
+#' @export
+predict_model.lda <- function(x, newdata, type, ...) {
+  pred <- predict(x, newdata = newdata, ...)$class
+}
+
+#' @export
+predict_model.keras.engine.training.Model <- function(x, newdata, type, ...) {
+  if (!requireNamespace('keras', quietly = TRUE)) {
+    stop('The keras package is required for predicting keras models')
+  }
+  pred <- predict(x, as.matrix(newdata))[,1]
+}
+
+predict_model.xgb.Booster <- function(x, newdata, type, ...) {
+  if (!requireNamespace('xgboost', quietly = TRUE)) {
+    stop('The xgboost package is required for predicting xgboost models')
+  }
+  if (is.data.frame(newdata)) {
+    newdata <- xgboost::xgb.DMatrix(as.matrix(newdata))
+  }
+  pred <- predict(x, newdata = newdata, reshape = TRUE, ...)
+}
+
+
+
 
 #' @rdname model_support
 #' @export
@@ -148,7 +170,7 @@ model_type <- function(x, ...) {
 }
 #' @export
 model_type.default <- function(x, ...) {
-  stop('The class of model must have a model_type method. See ?model_type to get an overview of models supported out of the box', call. = FALSE)
+    stop('The class of model must have a model_type method. See ?model_type to get an overview of models supported out of the box', call. = FALSE)
 }
 #' @export
 model_type.anchors_classifier <- function(x, ...) 'classification'
@@ -184,4 +206,35 @@ model_type.H2OModel <- function(x, ...) {
   } else {
     stop('This h2o model is not currently supported.')
   }
+}
+
+#' @export
+model_type.lda <- function(x, ...) 'classification'
+
+#' @export
+model_type.keras.engine.training.Model <- function(x, ...) {
+  if (!requireNamespace('keras', quietly = TRUE)) {
+    stop('The keras package is required for predicting keras models')
+  }
+  num_layers <- length(x$layers)
+  if (keras::get_config(keras::get_layer(x, index = num_layers))$activation == 'linear') {
+    'regression'
+  } else {
+    'classification'
+  }
+}
+
+#' @export
+model_type.xgb.Booster <- function(x, ...) {
+  obj <- x$params$objective
+  if (is.null(obj)) return('regression')
+  if (is.function(obj)) stop('Unsupported model type', call. = FALSE)
+  type <- strsplit(obj, ':')[[1]][1]
+  switch(
+    type,
+    reg = 'regression',
+    binary = 'classification',
+    multi = 'classification',
+    stop('Unsupported model type', call. = FALSE)
+  )
 }

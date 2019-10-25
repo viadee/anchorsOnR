@@ -129,6 +129,15 @@ printExplanations(explainer, explanations)
 # WITH PRECISION 1 AND COVERAGE 0.114
 ```
 
+### Extending Model Support
+By default, *anchors* supports a variety of machine learning packets and model classes, such as:
+
+* lda
+* mlr
+* keras
+* h2o
+
+However, the prefered model of your choice might not be included in this list. In order to explain an arbitraty machine learning model, *anchors* needs to be able to retrieve predictions from that model in a standardised way. Furthermore, it requires information as to whether it is a classification or regression model. To cater the former, *anchors* calls the `predict_model()` generic which the user is free to supply methods for. For the latter, the model must respond to the `model_type()` generic. See `models.R`for examples on how to do write corresponding methods.
 
 ## Authors
 

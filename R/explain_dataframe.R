@@ -34,11 +34,13 @@ explain.data.frame <- function(x, explainer, labels = NULL, ...) {
   # Remove target column from single instance
   if (!is.null(explainer$target)) {
     targetIndex <- which(colnames(x) == explainer$target)
-    if (length(targetIndex) != 1 && targetIndex < 0) {
-      # Explained instance should not necessarily need target column
-      #stop("Could not find unambiguous target column")
-    } else {
-      x <- x[, -targetIndex]
+    if (length(targetIndex) != 0){
+      if (length(targetIndex) != 1 && targetIndex < 0) {
+        # Explained instance should not necessarily need target column
+        #stop("Could not find unambiguous target column")
+      } else {
+        x <- x[, -targetIndex]
+      }
     }
   }
 
