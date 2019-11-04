@@ -66,7 +66,7 @@ output_type <- function(x) {
   switch(
     model_type(x),
     classification = "prob",
-    regression = "raw",
+    #regression = "raw",
     stop(model_type(x), " models are not supported yet", call. = FALSE)
   )
 }
