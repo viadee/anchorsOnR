@@ -47,7 +47,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, ...) {
   if (is.null(labels)){
     labels <- predict_model(explainer$model, x, type = o_type, ...)
     if (is.matrix(labels)){
-      labels = set_labels(labels, x)
+      labels = set_labels(labels, explainer$model)
       labels = colnames(labels)[apply(labels,1,which.max)]
     }
 
@@ -148,6 +148,10 @@ explain.data.frame <- function(x, explainer, labels = NULL, ...) {
         }))
 
         pred = predict_model(explainer$model, instancesDf, type = o_type, ...)
+        if (is.matrix(pred)){
+          pred = set_labels(pred, explainer$model)
+          pred = colnames(pred)[apply(pred,1,which.max)]
+        }
         #pred = set_labels(pred, explainer$model)
         matchingLabels = length(pred[pred==labels[i]])
         # Note that for some reason (convention?), within anchors, we call accurancy precision!
