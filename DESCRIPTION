@@ -28,5 +28,7 @@ Suggests:
     mlr,
     h2o,
     knitr,
-    MASS
+    MASS,
+    xgboost,
+    keras
 RoxygenNote: 6.1.1
