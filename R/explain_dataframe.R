@@ -44,8 +44,15 @@ explain.data.frame <- function(x, explainer, labels = NULL, ...) {
     }
   }
 
-  if (is.null(labels))
+  if (is.null(labels)){
     labels <- predict_model(explainer$model, x, type = o_type, ...)
+    if (is.matrix(labels)){
+      labels = set_labels(labels, x)
+      labels = colnames(labels)[apply(labels,1,which.max)]
+    }
+
+  }
+
 
   if (is.null(labels))
     stop("Either labels or a target column to be explained need to be specified")
@@ -141,7 +148,7 @@ explain.data.frame <- function(x, explainer, labels = NULL, ...) {
         }))
 
         pred = predict_model(explainer$model, instancesDf, type = o_type, ...)
-        pred = set_labels(pred, explainer$model)
+        #pred = set_labels(pred, explainer$model)
         matchingLabels = length(pred[pred==labels[i]])
         # Note that for some reason (convention?), within anchors, we call accurancy precision!
         precision = matchingLabels/samplesToEvaluate

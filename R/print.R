@@ -31,10 +31,15 @@ printExplanations <- function(explainer, explanations){
 printInstance <- function(i, explainer, explanations){
   instance = explainer$x[i,]
   cat(paste("====Explained Instance ", i,"===="), sep = "\n")
-  for(col in 1:(ncol(instance)-1)){
+  adjust = ifelse(is.null(explainer$target),0, 1)
+  for(col in 1:(ncol(instance)-adjust)){
     cat(paste(colnames(instance)[col], "=", unlist(instance[col]))); cat("\n");
   }
-  cat(paste("WITH LABEL", explainer$target, "=", paste0("'",unique(instance[,explainer$target]),"'")), sep = "\n")
+  if (!is.null(explainer$target)){
+    cat(paste("WITH LABEL", explainer$target, "=", paste0("'",unique(instance[,explainer$target]),"'")), sep = "\n")
+  } else {
+   # cat(paste("WITH LABEL", explainer$target, "=", paste0("'",unique(instance[,explainer$target]),"'")), sep = "\n")
+  }
 }
 
 #' Internal helper function

@@ -30,6 +30,7 @@
 #' - `H2OModel` from h2o
 #' - `lda` from MASS (used for low-dependency examples)
 #'
+#'
 #' If your model is not one of the above you'll need to implement support
 #' yourself. For that you'll need to implement a `predict_model()` method and
 #' potentially a `model_type()` method (if the latter is omitted the model
@@ -78,7 +79,8 @@ set_labels <- function(res, model) {
     if (length(labels) != ncol(res)) {
       warning('Ignoring provided class labels as length differs from model output')
     } else {
-      names(res) <- labels
+      #names(res) <- labels
+      colnames(res) <- labels
     }
   }
   res
@@ -147,7 +149,17 @@ predict_model.keras.engine.training.Model <- function(x, newdata, type, ...) {
   if (!requireNamespace('keras', quietly = TRUE)) {
     stop('The keras package is required for predicting keras models')
   }
-  pred <- predict(x, as.matrix(newdata))[,1]
+  preds <- predict(x, as.array(as.matrix(newdata)))
+  if (type == 'raw') {
+    data.frame(Response = preds[, 1])
+  } else {
+    if (ncol(preds) == 1) {
+      preds <- cbind(1 - preds, preds)
+    }
+    return (preds)
+    #colnames(res) <- as.character(seq_len(ncol(res)))
+    #as.data.frame(res, check.names = FALSE)
+  }
 }
 
 predict_model.xgb.Booster <- function(x, newdata, type, ...) {
@@ -224,7 +236,7 @@ model_type.keras.engine.training.Model <- function(x, ...) {
   }
 }
 
-#' @export
+  #' @export
 model_type.xgb.Booster <- function(x, ...) {
   obj <- x$params$objective
   if (is.null(obj)) return('regression')

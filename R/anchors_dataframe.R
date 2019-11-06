@@ -24,6 +24,7 @@ anchors.data.frame <- function(x, model, perturbator = NULL, bins = NULL,
   } else if (inherits(model, "WrappedModel")) {
     explainer$target = model$task.desc$target
   }
+
   if (!is.null(explainer$target) && !(explainer$target %in% names(x))) {
     BBmisc::stopf("Cannot access specified target. If no mlr model is to
                     be explained, please provide the column name of the
@@ -47,6 +48,9 @@ anchors.data.frame <- function(x, model, perturbator = NULL, bins = NULL,
 
     # Create discretized DF
     explainer$discretizedDF <- discretize.data.frame(explainer$x[, -targetIndex],
+                                                     explainer$bins)
+  } else {
+    explainer$discretizedDF <- discretize.data.frame(explainer$x[,],
                                                      explainer$bins)
   }
 
