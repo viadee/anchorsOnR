@@ -44,6 +44,7 @@ Out of the box, `anchors` supports the following model objects:
 - `H2OModel` from h2o
 - `lda` from MASS (used for low-dependency examples)
 
+
 If your model is not one of the above you'll need to implement support
 yourself. For that you'll need to implement a `predict_model()` method and
 potentially a `model_type()` method (if the latter is omitted the model

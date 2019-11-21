@@ -13,7 +13,7 @@ anchors.data.frame <- function(x, model, perturbator = NULL, bins = NULL,
                                delta = 0.1, epsilon = 0.1, tau = 0.9,
                                tauDiscrepancy = 0.05, initSamples = 10L,
                                allowSuboptimalSteps = TRUE, batchSize = 100L,
-                               emptyRuleEvaluations = 100L, verbose = 0,
+                               verbose = 0,
                                ...) {
 
   explainer <- c(as.list(environment()), list(...))
@@ -76,7 +76,7 @@ anchors.data.frame <- function(x, model, perturbator = NULL, bins = NULL,
   explainer$initSamples = initSamples
   explainer$allowSuboptimalSteps = allowSuboptimalSteps
   explainer$batchSize = batchSize
-  explainer$emptyRuleEvaluations = emptyRuleEvaluations
+  #explainer$emptyRuleEvaluations = emptyRuleEvaluations
   explainer$verbose = verbose
 
   structure(explainer, class = c('data_frame_explainer', 'explainer', 'list'))

@@ -9,6 +9,7 @@ shutdown <- function(control = NULL){
     BBmisc::stopf("AnchorsControl Object does not maintain a connection object")
   }
 
+
   con = control$connection
 
   message("Shutting down Anchors JVM: ", appendLF = FALSE);
@@ -25,16 +26,22 @@ shutdown <- function(control = NULL){
 
 #' Initialize and Connect to anchors
 #'
+#' By default, this method first checks if an anchors instance is available to connect to. If it cannot connect and \code{startAnchors = TRUE}, it will attempt to start an instance of anchors at localhost:6666.
+#' If an open ip and port of your choice are passed in, then this method will attempt to start an anchors instance at that specified ip port.
+#'
+#' When initializing anchors locally, this method searches for RemoteModuleExtension.jar in the R library resources (\code{system.file("java", "RemoveModuleExtension.jar", package = "anchors")}), and if the file does not exist, it will automatically attempt to download the correct version from Maven. The user must have Internet access for this process to be successful.
+#'
 #' Attempts to start and/or connect to an Anchors instance.
 #' @param ip Object of class \code{character} representing the IP address of the server where Anchors is running.
 #' @param port Object of class \code{numeric} representing the port number of the Anchors server.
 #' @param name (Optional) A \code{character} string representing the Anchors cluster name.
 #' @param startAnchors (Optional) A \code{logical} value indicating whether to try to start Anchors from R if no connection with Anchors is detected. This is only possible if \code{ip = "localhost"} or \code{ip = "127.0.0.1"}.  If an existing connection is detected, R does not start Anchors.
 #' @param explainer An \code{explainer} object holding startup params for the server
-#' @return this method will load it and return a socketConnection
+#' @param forceDL (Optional) A \code{logical} value indicating whether to force download of the RemoteModuleExtension executable. Defaults to FALSE, so the executable will only be downloaded if it does not already exist in the anchors R library resources directory \code{anchors/java/RemoteModuleExtension.jar}. This value is only used when R starts anchors.
+#' @return this method will load and return a socketConnection
 #' @export
 initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_,
-                        startAnchors = TRUE, explainer = NULL) {
+                        startAnchors = TRUE, explainer = NULL, forceDL = FALSE) {
 
   if(!is.character(ip) || length(ip) != 1L || is.na(ip) || !nzchar(ip))
     stop("`ip` must be a non-empty character string")
@@ -59,7 +66,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_,
     if (ip == "localhost" || ip == "127.0.0.1"){
       message("\nAnchors is not running yet, starting it now...\n")
       stdout <- .anchors.getTmpFile("stdout")
-      .anchors.startJar(ip = ip, port = port, name = name, stdout = stdout, explainer = explainer)
+      .anchors.startJar(ip = ip, port = port, name = name, stdout = stdout, explainer = explainer, forceDL = forceDL)
 
       message("Starting Anchors JVM and connecting: ")
       Sys.sleep(1L)
@@ -195,7 +202,7 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_,
   args <- c(args, "-initSampleCount", explainer$initSamples)
   args <- c(args, "-allowSuboptimalSteps", tolower(as.character(explainer$allowSuboptimalSteps)))
   args <- c(args, "-batchSize", explainer$batchSize)
-  args <- c(args, "-emptyRuleEvaluations", explainer$emptyRuleEvaluations)
+  #args <- c(args, "-emptyRuleEvaluations", explainer$emptyRuleEvaluations) TODO: Why is this option removed from the java server?
 
    message(        "Note:  In case of errors look at the following log files:")
    message(sprintf("    %s", stdout))
@@ -276,11 +283,11 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_,
     return(own_jar)
   }
 
-  if (!is.null(.anchors.pkg.path)){
+  if (!overwrite && !is.null(.anchors.pkg.path) && .anchors.pkg.path != ""){
     return(.anchors.pkg.path)
   }
 
-  if (is.null(.anchors.pkg.path)) {
+  if (is.null(.anchors.pkg.path) || .anchors.pkg.path == "") {
     pkg_path = dirname(system.file(".", package = "anchors"))
   } else {
     pkg_path = .anchors.pkg.path
@@ -301,5 +308,61 @@ initAnchors <- function(ip = "localhost", port = 6666, name = NA_character_,
       return(possible_file)
     }
   }
-  return(possible_file)
+
+  jarFile <- file.path(pkg_path, "jar.txt")
+  if (file.exists(jarFile) && !nzchar(own_jar))
+    own_jar <- readLines(jarFile)
+
+  dest_folder <- file.path(pkg_path, "java")
+  if (!file.exists(dest_folder)) {
+    dir.create(dest_folder)
+  }
+
+  dest_file <- file.path(dest_folder, "RemoteModuleExtension.jar")
+
+  buildnumFile <- file.path(pkg_path, "buildnum.txt")
+  version <- readLines(buildnumFile)
+
+  # Download if RemoteModuleExtension.jar doesn't already exist or user specifies force overwrite
+  if (nzchar(own_jar) && is_url(own_jar)) {
+    anchors_url = own_jar # md5 must have same file name and .md5 suffix
+    #md5_url = paste(own_jar, ".md5", sep="")
+  } else {
+    base_url <- paste("repo1.maven.org/maven2/de/viadee/xai/anchor/RemoteModuleExtension", version, sep = "/")
+    web_filename <- paste0("RemoteModuleExtension","-",version,"-jar-with-dependencies.jar")
+    anchors_url <- paste("https:/", base_url, web_filename, sep = "/") #https?
+    # Get MD5 checksum
+    #md5_url <- paste("http:/", base_url, "RemoteModuleExtenion.jar.md5", sep = "/") #maybe remove?
+  }
+
+  # security check
+  #md5_file <- tempfile(fileext = ".md5")
+  #download.file(md5_url, destfile = md5_file, mode = "w", cacheOK = FALSE, quiet = TRUE)
+  #md5_check <- readLines(md5_file, n = 1L)
+  #if (nchar(md5_check) != 32) stop("md5 malformed, must be 32 characters (see ", md5_url, ")")
+  #unlink(md5_file)
+
+  # Save to temporary file first to protect against incomplete downloads
+  temp_file <- paste(dest_file, "tmp", sep = ".")
+  cat("Performing one-time download of RemoteModuleExtension.jar from\n")
+  cat("    ", anchors_url, "\n")
+  cat("(This could take a few minutes, please be patient...)\n")
+  download.file(url = anchors_url, destfile = temp_file, mode = "wb", cacheOK = FALSE, quiet = TRUE)
+
+  # Apply sanity checks
+  if(!file.exists(temp_file))
+    stop("Error: Transfer failed. Please download ", anchors_url, " and place RemoteModuleExtension.jar in ", dest_folder)
+
+  #md5_temp_file = md5sum(temp_file)
+  #md5_temp_file_as_char = as.character(md5_temp_file)
+  #if(md5_temp_file_as_char != md5_check) {
+  #  cat("Error: Expected MD5: ", md5_check, "\n")
+  #  cat("Error: Actual MD5  : ", md5_temp_file_as_char, "\n")
+  #  stop("Error: MD5 checksum of ", temp_file, " does not match ", md5_check)
+  #}
+
+  # Move good file into final position
+  file.rename(temp_file, dest_file)
+  return(dest_file[file.exists(dest_file)])
+
 }

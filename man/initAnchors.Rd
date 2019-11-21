@@ -5,7 +5,7 @@
 \title{Initialize and Connect to anchors}
 \usage{
 initAnchors(ip = "localhost", port = 6666, name = NA_character_,
-  startAnchors = TRUE, explainer = NULL)
+  startAnchors = TRUE, explainer = NULL, forceDL = FALSE)
 }
 \arguments{
 \item{ip}{Object of class \code{character} representing the IP address of the server where Anchors is running.}
@@ -17,10 +17,18 @@ initAnchors(ip = "localhost", port = 6666, name = NA_character_,
 \item{startAnchors}{(Optional) A \code{logical} value indicating whether to try to start Anchors from R if no connection with Anchors is detected. This is only possible if \code{ip = "localhost"} or \code{ip = "127.0.0.1"}.  If an existing connection is detected, R does not start Anchors.}
 
 \item{explainer}{An \code{explainer} object holding startup params for the server}
+
+\item{forceDL}{(Optional) A \code{logical} value indicating whether to force download of the RemoteModuleExtension executable. Defaults to FALSE, so the executable will only be downloaded if it does not already exist in the anchors R library resources directory \code{anchors/java/RemoteModuleExtension.jar}. This value is only used when R starts anchors.}
 }
 \value{
-this method will load it and return a socketConnection
+this method will load and return a socketConnection
 }
 \description{
+By default, this method first checks if an anchors instance is available to connect to. If it cannot connect and \code{startAnchors = TRUE}, it will attempt to start an instance of anchors at localhost:6666.
+If an open ip and port of your choice are passed in, then this method will attempt to start an anchors instance at that specified ip port.
+}
+\details{
+When initializing anchors locally, this method searches for RemoteModuleExtension.jar in the R library resources (\code{system.file("java", "RemoveModuleExtension.jar", package = "anchors")}), and if the file does not exist, it will automatically attempt to download the correct version from Maven. The user must have Internet access for this process to be successful.
+
 Attempts to start and/or connect to an Anchors instance.
 }

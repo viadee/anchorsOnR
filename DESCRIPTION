@@ -30,5 +30,6 @@ Suggests:
     knitr,
     MASS,
     xgboost,
-    keras
+    keras,
+    rmarkdown
 RoxygenNote: 6.1.1
